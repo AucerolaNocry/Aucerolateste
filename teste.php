@@ -208,6 +208,7 @@ if ($opcao === "1") {
         echo $bold . $vermelho . "[!] Possível bypass detectado: Data/hora e fuso horário automáticos estão desativados\n" . $cln;
     }
 } // fim da opção 1} else {
+{
     echo $bold . $fverde . "[+] Verificação concluída com sucesso" . $cln;
 }
 
