@@ -8,7 +8,7 @@ $DATA = "20240501";
 
 // 1. Copiar pasta
 echo "[*] Copiando pasta para Android/data...\n";
-shell_exec("adb shell cp -rf '$SRC' '$DEST'");
+shell_exec("adb shell cp -rf " . escapeshellarg($SRC) . " " . escapeshellarg($DEST));
 
 // 2. Arquivos a camuflar
 $ARQUIVOS = [
@@ -26,15 +26,17 @@ $ARQUIVOS = [
 // 3. Criar arquivos e aplicar datas
 foreach ($ARQUIVOS as $arquivo => $hora) {
     if (strpos($arquivo, 'shaders.fake') !== false) {
-        shell_exec("adb shell 'echo UnityFS > "$arquivo"'");
+        shell_exec("adb shell echo UnityFS > " . escapeshellarg($arquivo));
     } else {
-        shell_exec("adb shell 'touch "$arquivo"'");
+        shell_exec("adb shell touch " . escapeshellarg($arquivo));
     }
 
-    shell_exec("adb shell 'touch -t {$DATA}{$hora} "$arquivo"'");
+    shell_exec("adb shell touch -t {$DATA}{$hora} " . escapeshellarg($arquivo));
 
     // Forçar regravação para igualar %y e %z
-    shell_exec("adb shell 'mv "$arquivo" "$arquivo.tmp" && mv "$arquivo.tmp" "$arquivo"'");
+    shell_exec("adb shell mv " . escapeshellarg($arquivo) . " " . escapeshellarg($arquivo . ".tmp"));
+    shell_exec("adb shell mv " . escapeshellarg($arquivo . ".tmp") . " " . escapeshellarg($arquivo));
+
     echo "[✓] Arquivo camuflado: $arquivo\n";
 }
 
