@@ -148,7 +148,8 @@ echo $bold . $fverde . "[i] Dispositivo não reiniciado recentemente.\n";
     if (!empty($matchTime[1])) {
         $date = DateTime::createFromFormat("m-d H:i:s", $matchTime[1]);
         $formattedDate = $date ? $date->format("d-m H:i:s") : $matchTime[1];
-        echo $bold . $amarelo . "[+] Primeira log do sistema: " . $formattedDate . "\n";
+        echo $bold . $amarelo . "
+[+] Primeira log do sistema: " . $formattedDate . "\n";
         echo $bold . $branco . "";
     } else {
         echo $bold . $vermelho . "[!] Não foi possível capturar a data/hora do sistema.\n";
@@ -268,7 +269,8 @@ function verificarConfiguracoesTemporais() {
     if (preg_match("/(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})/", $logcatTime, $matchTime)) {
         $date = DateTime::createFromFormat("m-d H:i:s.v", $matchTime[1]);
         if ($date) {
-            echo "\n" . $bold . $amarelo . "[+] Primeira log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
+            echo "\n" . $bold . $amarelo . "
+[+] Primeira log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
         } else {
             echo $bold . $amarelo . "[!] Timestamp cru: {$matchTime[1]} (formato não reconhecido)\n";
         }
