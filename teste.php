@@ -257,18 +257,18 @@ $reset = "\033[0m";
 // ===== FUNÇÃO PARA VERIFICAÇÃO DE HORÁRIO =====
 function verificarConfiguracoesTemporais() {
     global $bold, $branco, $azul, $amarelo, $vermelho, $fverde, $reset;
-    
+
     echo $bold . $azul . "\n[=== VERIFICAÇÃO DE CONFIGURAÇÕES TEMPORAIS ===]\n" . $reset;
-    
+
     // 1. Captura da primeira linha do log do sistema
     echo $bold . $branco . "[+] Obtendo timestamp inicial do sistema...\n";
     $logcatTime = shell_exec("adb logcat -d -v time 2>/dev/null | head -n 2");
-    
+
     if (preg_match("/(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})/", $logcatTime, $matchTime)) {
         try {
             $date = DateTime::createFromFormat("m-d H:i:s.v", $matchTime[1]);
             if ($date) {
-                echo $bold . $fverde . "[✓] Primeiro log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
+                echo $bold . $fverde . "[\u2713] Primeiro log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
             } else {
                 throw new Exception("Formato inválido");
             }
@@ -282,7 +282,7 @@ function verificarConfiguracoesTemporais() {
     // 2. Verificação de fuso horário
     echo $bold . $branco . "\n[+] Verificando configuração de fuso horário...\n";
     $fusoHorario = trim(shell_exec("adb shell getprop persist.sys.timezone 2>/dev/null"));
-    
+
     if ($fusoHorario === "America/Sao_Paulo") {
         echo $bold . $fverde . "[✓] Fuso horário configurado corretamente: {$fusoHorario}\n";
     } elseif (!empty($fusoHorario)) {
@@ -293,41 +293,39 @@ function verificarConfiguracoesTemporais() {
     }
 
     // 3. Verificação de configurações automáticas
-    echo $bold . $branco . "\n[+] Verificando configurações automáticas...\n";
+    echo $bold . $azul . "[+] Checando se modificou data e hora...\n";
     $autoTime = trim(shell_exec("adb shell settings get global auto_time 2>/dev/null"));
     $autoTimeZone = trim(shell_exec("adb shell settings get global auto_time_zone 2>/dev/null"));
-    
-    $statusAutoTime = ($autoTime === "1") ? "ATIVADO" : "DESATIVADO";
-    $statusAutoZone = ($autoTimeZone === "1") ? "ATIVADO" : "DESATIVADO";
-    
-    echo $bold . "[i] Horário automático: " . ($autoTime === "1" ? $fverde : $amarelo) . $statusAutoTime . "\n";
-    echo $bold . "[i] Fuso automático: " . ($autoTimeZone === "1" ? $fverde : $amarelo) . $statusAutoZone . "\n";
-    
-    if ($autoTime !== "1" || $autoTimeZone !== "1") {
-        echo $bold . $vermelho . "[!] ALERTA: Configurações automáticas desativadas - possível tentativa de manipulação\n";
+
+    if ($autoTime === "1" && $autoTimeZone === "1") {
+        echo $bold . $fverde . "[i] Data e hora/fuso horário automático estão ativados.\n";
+    } else {
+        echo $bold . $vermelho . "[!] Possível bypass detectado: configurações automáticas estão desativadas.\n";
     }
+
+    echo $bold . $branco . "[+] Caso haja mudança de horário durante/após a partida, aplique o W.O!\n";
 
     // 4. Análise detalhada de alterações de horário
     echo $bold . $branco . "\n[+] Analisando logs de alteração de horário...\n";
     $logOutput = shell_exec('adb logcat -d 2>/dev/null | grep -E "UsageStatsService: Time changed|SystemClock: Time updated" | grep -v "HCALL"');
     $alteracoes = [];
-    
+
     if (!empty(trim($logOutput ?? ''))) {
         $linhas = explode("\n", trim($logOutput));
-        
+
         foreach ($linhas as $linha) {
             if (preg_match("/(\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})\.\d{3}.*(?:Time changed|Time updated).*by (-?\d+) seconds?/", $linha, $matches)) {
                 try {
                     $data = $matches[1];
                     $hora = $matches[2] . ":" . $matches[3] . ":" . $matches[4];
                     $segundos = (int)$matches[5];
-                    
+
                     $timestamp = DateTime::createFromFormat("m-d H:i:s", "$data $hora");
                     if (!$timestamp) continue;
-                    
+
                     $timestampUnix = $timestamp->getTimestamp();
                     $novaHoraUnix = $timestampUnix + $segundos;
-                    
+
                     $alteracoes[] = [
                         'data' => $data,
                         'hora_original' => $hora,
@@ -347,18 +345,18 @@ function verificarConfiguracoesTemporais() {
     if (!empty($alteracoes)) {
         echo $bold . $vermelho . "\n[!] ALTERAÇÕES DE HORÁRIO DETECTADAS:\n";
         usort($alteracoes, fn($a, $b) => strtotime($b['data'] . ' ' . $b['hora_original']) - strtotime($a['data'] . ' ' . $a['hora_original']));
-        
+
         foreach ($alteracoes as $alt) {
             echo $bold . $amarelo . "• {$alt['data']} {$alt['hora_original']} -> {$alt['hora_nova']} ";
             echo "({$alt['acao']} " . abs($alt['diferenca']) . " segundos)\n";
             echo $branco . "   Log: " . substr($alt['timestamp'], 0, 80) . "...\n";
         }
-        
+
         echo $bold . $branco . "\n[AÇÃO] Verifique se houve alteração durante a partida\n";
     } else {
-        echo $bold . $fverde . "[✓] Nenhuma alteração de horário detectada nos logs\n";
+        echo $bold . $fverde . "[\u2713] Nenhuma alteração de horário detectada nos logs\n";
     }
-    
+
     echo $bold . $azul . "\n[=== FIM DA VERIFICAÇÃO TEMPORAL ===]\n\n" . $reset;
 }
 
