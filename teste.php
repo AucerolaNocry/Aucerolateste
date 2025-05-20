@@ -137,7 +137,8 @@ function scanner_ff_adb() {
         $minutos = $filtros[1];
         echo $bold . $vermelho . "[!] O dispositivo foi iniciado recentemente (há {$minutos} minutos).\n";
     } else {
-        echo $bold . $fverde . "[i] Dispositivo não reiniciado recentemente.\n";
+        echo $bold . $azul . "[+] Checando se o dispositivo foi reiniciado recentemente...\n";
+echo $bold . $fverde . "[i] Dispositivo não reiniciado recentemente.\n";
     }
 
     // ========== LOGCAT, FUSO HORÁRIO, E ALTERAÇÕES ==========
@@ -267,7 +268,7 @@ function verificarConfiguracoesTemporais() {
     if (preg_match("/(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})/", $logcatTime, $matchTime)) {
         $date = DateTime::createFromFormat("m-d H:i:s.v", $matchTime[1]);
         if ($date) {
-            echo $bold . $fverde . "[✓] Primeiro log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
+            echo "\n" . $bold . $amarelo . "[+] Primeira log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
         } else {
             echo $bold . $amarelo . "[!] Timestamp cru: {$matchTime[1]} (formato não reconhecido)\n";
         }
