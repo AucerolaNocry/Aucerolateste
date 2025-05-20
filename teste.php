@@ -128,7 +128,7 @@ function scanner_ff_adb() {
     } elseif ($rootDetectado) {
         echo $bold . $vermelho . "[+] Root detectado no dispositivo Android.\n";
     } else {
-        echo $bold . $fverde . "[-] O dispositivo não tem root.\n";
+        echo $bold . $fverde . "[-] O dispositivo não tem root.\n\n";
     }
 
     // Verifica UPTIME
