@@ -309,8 +309,7 @@ function verificarConfiguracoesTemporais() {
     if (!empty(trim($logOutput ?? ''))) {
         $linhas = explode("\n", trim($logOutput));
         foreach ($linhas as $linha) {
-            if (preg_match("/(\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})\.\d{3}.*(?:Time changed|Time updated).*by (-?\d+) seconds?/"," +
-        " $linha, $matches)) {
+            if (preg_match("/(\\d{2}-\\d{2}) (\\d{2}):(\\d{2}):(\\d{2})\\.\\d{3}.*(?:Time changed|Time updated).*by (-?\\d+) seconds?/", $linha, $matches)) {
                 $data = $matches[1];
                 $hora = $matches[2] . ":" . $matches[3] . ":" . $matches[4];
                 $segundos = (int)$matches[5];
