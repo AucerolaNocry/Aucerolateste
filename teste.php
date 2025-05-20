@@ -131,6 +131,8 @@ function scanner_ff_adb() {
         echo $bold . $fverde . "[-] O dispositivo não tem root.\n";
     }
 
+
+
     // Verifica UPTIME
     $comandoUPTIME = shell_exec("adb shell uptime");
     if (preg_match("/up (\d+) min/", $comandoUPTIME, $filtros)) {
