@@ -52,19 +52,7 @@ function menu_principal() {
     echo "\n{$lazul}{$bold}[/] Escolha uma das opções acima: {$cln}";
 }
 
-// ===== FUNÇÃO ATUALIZAR =====
-function atualizar() {
-    global $cln, $bold, $fverde;
-    echo "{$cln}";
-    system("git fetch origin && git reset --hard origin/master && git clean -f -d");
-    echo $bold . $fverde . "Script atualizado com sucesso!{$cln}\n";
-    die;
-}
 
-// [CORES ANSI E FUNÇÕES DE BANNER/MENU - JÁ DEFINIDOS ANTES]
-// ... (mantenha igual ao script anterior, não precisa repetir aqui) ...
-
-// ========== ATUALIZADO: SCANNER FREEFIRE NORMAL COM ADB ==========
 function scanner_ff_adb() {
     global $bold, $vermelho, $azul, $amarelo, $branco, $fverde, $cln;
 
