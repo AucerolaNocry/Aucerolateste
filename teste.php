@@ -1,44 +1,78 @@
 <?php
-echo "================ INICIANDO PROCESSO =================\n";
 
-// Caminhos
-$SRC = "/storage/emulated/0/Pictures/TESTE/PINS/PINSSALVOS/com.dts.freefireth";
-$DEST = "/storage/emulated/0/Android/data/com.dts.freefireth";
-$DATA = "20250428";
+function fake_shell_exec($comando) {
+    // Simula 'find' comando
+    if (strpos($comando, 'find') !== false) {
+        return "/storage/emulated/0/Android/data/com.dts.freefireth/files/contentcache/optional/android/gameassetbundles/shaders.fake";
+    }
 
-// 1. Copiar a pasta
-echo "[*] Copiando pasta com.dts.freefireth para Android/data...\n";
-shell_exec("adb shell cp -rf '$SRC' '/storage/emulated/0/Android/data/'");
+    // Simula 'head -c 20' para validar UnityFS
+    if (strpos($comando, 'head -c 20') !== false) {
+        return "UnityFS";
+    }
 
-// 2. Alterar datas dos arquivos
-echo "[*] Alterando datas dos arquivos para 28/04/2025...\n";
-$arquivos = [
-    "$DEST/files/ShaderStripSettings" => "0930.00",
-    "$DEST/files" => "0945.00",
-    "$DEST/files/contentcache" => "1005.00",
-    "$DEST/files/contentcache/optional" => "1015.00",
-    "$DEST/files/contentcache/optional/android" => "1025.00",
-    "$DEST/files/contentcache/optional/android/gameassetbundles" => "1035.00",
-    "$DEST" => "1045.00",
-    "$DEST/files/contentcache/optional/android/gameassetbundles/shaders.2SrgRg~2FMjg7~2BKPeIznO9OYlRoHc~3D" => "1055.00",
-    "$DEST/files/ffrtc_log.txt" => "2300.00"
-];
+    // Simula datas iguais para modification e change
+    if (strpos($comando, 'stat -c "%y"') !== false || strpos($comando, 'stat -c "%z"') !== false) {
+        return "2024-05-01 10:00:00.000000000 +0000";
+    }
 
-foreach ($arquivos as $arquivo => $hora) {
-    shell_exec("adb shell touch -t {$DATA}{$hora} '$arquivo'");
+    // Default: comando real
+    return shell_exec($comando);
 }
-echo "[✓] Datas alteradas com sucesso.\n";
 
-// 3. Abrir Free Fire
-echo "[*] Abrindo Free Fire...\n";
-shell_exec("adb shell monkey -p com.dts.freefireth -c android.intent.category.LAUNCHER 1");
 
-// 4. Aguardar 5 segundos
-sleep(5);
+// Código de simulação que chama comandos do scanner
+$diretorioAvatarRes = "/storage/emulated/0/Android/data/com.dts.freefireth/files/contentcache/optional/android/gameassetbundles";
+echo "[1]  Escanear FreeFire Normal\n";
+$comandoListarArquivos = "adb shell \"find " . escapeshellarg($diretorioAvatarRes) . " -type f 2>/dev/null\"";
+$resultadoArquivos = (string) fake_shell_exec($comandoListarArquivos);
+$modificacaoDetectada = false;
 
-// 5. Abrir Discord
-echo "[*] Abrindo Discord...\n";
-shell_exec("adb shell monkey -p com.discord -c android.intent.category.LAUNCHER 1");
+if ($resultadoArquivos !== '') {
+    $arquivos = array_filter(explode("\n", trim($resultadoArquivos)), "strlen");
+    foreach ($arquivos as $arquivo) {
+        $arquivo = (string) $arquivo;
+        if ($arquivo === '') {
+            continue;
+        }
 
-echo "================ PROCESSO FINALIZADO =================\n";
+        $nomeArquivo = basename($arquivo);
+        $caminhoArquivo = $arquivo;
+
+        $comandoVerificaUnityFS = "adb shell \"head -c 20 " . escapeshellarg($caminhoArquivo) . " 2>/dev/null\"";
+        $resultadoVerificaUnityFS = (string) fake_shell_exec($comandoVerificaUnityFS);
+
+        if ($resultadoVerificaUnityFS === '' || strpos($resultadoVerificaUnityFS, "UnityFS") === false) {
+            continue;
+        }
+
+        $comandoDataModifyArquivo = "adb shell stat -c \"%y\" " . escapeshellarg($caminhoArquivo) . " 2>/dev/null";
+        $comandoDataChangeArquivo = "adb shell stat -c \"%z\" " . escapeshellarg($caminhoArquivo) . " 2>/dev/null";
+
+        $resultadoDataModifyArquivo = trim((string) fake_shell_exec($comandoDataModifyArquivo));
+        $resultadoDataChangeArquivo = trim((string) fake_shell_exec($comandoDataChangeArquivo));
+
+        if ($resultadoDataModifyArquivo !== '' && $resultadoDataChangeArquivo !== '') {
+            try {
+                $dataModifyArquivo = new DateTime($resultadoDataModifyArquivo, new DateTimeZone("UTC"));
+                $dataModifyArquivo->setTimezone(new DateTimeZone("America/Sao_Paulo"));
+                $dataChangeArquivo = new DateTime($resultadoDataChangeArquivo, new DateTimeZone("UTC"));
+                $dataChangeArquivo->setTimezone(new DateTimeZone("America/Sao_Paulo"));
+
+                if ($dataModifyArquivo != $dataChangeArquivo) {
+                    echo "[!] Modificação detectada no arquivo: {$nomeArquivo}\n";
+                    $modificacaoDetectada = true;
+                }
+            } catch (Exception $e) {
+                echo "[!] Erro verificando datas do arquivo {$nomeArquivo}: " . $e->getMessage() . "\n";
+            }
+        }
+    }
+
+    if (!$modificacaoDetectada) {
+        echo "[i] Nenhuma alteração suspeita encontrada nos arquivos.\n";
+    }
+} else {
+    echo "[*] Sem itens baixados! Verifique se a data está após o fim da partida!\n";
+}
 ?>
