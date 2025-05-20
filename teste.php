@@ -46,7 +46,7 @@ function menu_principal() {
 }
 
 // ========== FUNÇÃO DE SCAN FREEFIRE NORMAL ==========
-function scanner_ff_adb() {
+function scanner_ff_adb() {}
     global $bold, $vermelho, $azul, $amarelo, $branco, $fverde, $cln;
 
     system("clear");
