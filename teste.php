@@ -245,8 +245,6 @@ switch (strtoupper($opcao)) {
         echo "\n{$vermelho}Opção inválida!{$cln}\n";
         break;
 }
-<?php
-
 // ===== CONFIGURAÇÕES DE CORES =====
 $bold = "\033[1m";
 $branco = "\033[1;37m";
