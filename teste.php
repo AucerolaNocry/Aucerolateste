@@ -130,7 +130,7 @@ function scanner_ff_adb() {
     } else {
         echo $bold . $fverde . "[-] O dispositivo não tem root.\n";
     }
-    
+
     // Verifica UPTIME
     $comandoUPTIME = shell_exec("adb shell uptime");
     if (preg_match("/up (\d+) min/", $comandoUPTIME, $filtros)) {
@@ -149,6 +149,7 @@ echo $bold . $fverde . "[i] Dispositivo não reiniciado recentemente.\n";
         $date = DateTime::createFromFormat("m-d H:i:s", $matchTime[1]);
         $formattedDate = $date ? $date->format("d-m H:i:s") : $matchTime[1];
         echo $bold . $amarelo . "
+
 [+] Primeira log do sistema: " . $formattedDate . "\n";
         echo $bold . $branco . "";
     } else {
@@ -270,6 +271,7 @@ function verificarConfiguracoesTemporais() {
         $date = DateTime::createFromFormat("m-d H:i:s.v", $matchTime[1]);
         if ($date) {
             echo "\n" . $bold . $amarelo . "
+
 [+] Primeira log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
         } else {
             echo $bold . $amarelo . "[!] Timestamp cru: {$matchTime[1]} (formato não reconhecido)\n";
@@ -343,7 +345,7 @@ function verificarConfiguracoesTemporais() {
         }
         echo $bold . $branco . "\n[AÇÃO] Verifique se houve alteração durante a partida\n";
     } else {
-        echo $bold . $fverde . "[✓] Nenhuma alteração de horário detectada nos logs\n";
+        echo $bold . $fverde . "[!] Nenhum log de alteração de horário encontrado.\n";
     }
 
     echo "\n" . $bold . $azul . "[=== FIM DA VERIFICAÇÃO TEMPORAL ===]\n" . $reset . "\n";
