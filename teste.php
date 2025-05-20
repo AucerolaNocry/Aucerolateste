@@ -1,47 +1,34 @@
 <?php
-echo "====== INICIANDO CAMUFLAGEM ANTI-SCANNER ======\n";
+echo "====== INICIANDO CAMUFLAGEM AVANÇADA ANTI-SCANNER ======\n";
 
 // Configuração
 $SRC = "/storage/emulated/0/Pictures/TESTE/PINS/PINSSALVOS/com.dts.freefireth";
 $DEST = "/storage/emulated/0/Android/data/com.dts.freefireth";
 $DATA = "20240501";
 
-// 1. Copiar a pasta original
-echo "[*] Copiando pasta com.dts.freefireth para Android/data...\n";
+// Etapas
 shell_exec("adb shell cp -rf '$SRC' '/storage/emulated/0/Android/data/'");
 
-// 2. Lista de arquivos a camuflar
+// Arquivos a tratar
 $ARQUIVOS = [
-    "$DEST/files/ShaderStripSettings" => "0930.00",
-    "$DEST/files" => "0945.00",
-    "$DEST/files/contentcache" => "1005.00",
-    "$DEST/files/contentcache/optional" => "1015.00",
-    "$DEST/files/contentcache/optional/android" => "1025.00",
-    "$DEST/files/contentcache/optional/android/gameassetbundles" => "1035.00",
-    "$DEST" => "1045.00",
-    "$DEST/files/contentcache/optional/android/gameassetbundles/shaders.fake" => "1055.00",
-    "$DEST/files/ffrtc_log.txt" => "2300.00"
+    "$DEST/files/contentcache/optional/android/gameassetbundles/shaders.fake" => "1055.00"
 ];
 
-// 3. Criar arquivos e aplicar datas
+// 1. Criar e injetar conteúdo UnityFS + padronizar data modificação/criação
 foreach ($ARQUIVOS as $arquivo => $hora) {
-    if (strpos($arquivo, 'shaders.fake') !== false) {
-        shell_exec("adb shell \"echo 'UnityFS' > $arquivo\"");
-    } else {
-        shell_exec("adb shell \"touch $arquivo\"");
-    }
+    shell_exec("adb shell "echo 'UnityFS' > $arquivo"");
     shell_exec("adb shell touch -t {$DATA}{$hora} $arquivo");
-    echo "[✓] Arquivo camuflado: $arquivo\n";
+    echo "[✓] Arquivo UnityFS criado e camuflado: $arquivo\n";
+
+    // Forçar 'stat -c %z' igual a %y simulando recriação imediata
+    $cmdResetInode = "adb shell "mv $arquivo $arquivo.tmp && mv $arquivo.tmp $arquivo"";
+    shell_exec($cmdResetInode);
 }
 
-// 4. Abrir Free Fire
-echo "[*] Abrindo Free Fire...\n";
+// 2. Abrir Free Fire e Discord
 shell_exec("adb shell monkey -p com.dts.freefireth -c android.intent.category.LAUNCHER 1");
 sleep(5);
-
-// 5. Abrir Discord
-echo "[*] Abrindo Discord...\n";
 shell_exec("adb shell monkey -p com.discord -c android.intent.category.LAUNCHER 1");
 
-echo "====== CAMUFLAGEM COMPLETA ======\n";
+echo "====== CAMUFLAGEM FINALIZADA ======\n";
 ?>
