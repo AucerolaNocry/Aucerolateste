@@ -267,7 +267,7 @@ function verificarConfiguracoesTemporais() {
     if (preg_match("/(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})/", $logcatTime, $matchTime)) {
         $date = DateTime::createFromFormat("m-d H:i:s.v", $matchTime[1]);
         if ($date) {
-            echo $bold . $fverde . "[\u2713] Primeiro log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
+            echo $bold . $fverde . "[✓] Primeiro log do sistema: " . $date->format("d-m-Y H:i:s") . "\n";
         } else {
             echo $bold . $amarelo . "[!] Timestamp cru: {$matchTime[1]} (formato não reconhecido)\n";
         }
@@ -280,7 +280,7 @@ function verificarConfiguracoesTemporais() {
     $fusoHorario = trim(shell_exec("adb shell getprop persist.sys.timezone 2>/dev/null"));
 
     if ($fusoHorario === "America/Sao_Paulo") {
-        echo $bold . $fverde . "[\u2713] Fuso horário configurado corretamente: {$fusoHorario}\n";
+        echo $bold . $fverde . "[✓] Fuso horário configurado corretamente: {$fusoHorario}\n";
     } elseif (!empty($fusoHorario)) {
         echo $bold . $amarelo . "[!] Fuso horário diferente do esperado: '{$fusoHorario}'\n";
         echo $bold . $branco . "[i] Esperado: America/Sao_Paulo\n";
@@ -299,7 +299,7 @@ function verificarConfiguracoesTemporais() {
         echo $bold . $vermelho . "[!] Possível bypass detectado: configurações automáticas estão desativadas.\n";
     }
 
-    echo $bold . $branco . "[+] Caso haja mudança de horário durante/após a partida, aplique o W.O!\n";
+    echo $bold . $branco . "[+] Caso a data da primeira log seja durante/após a partida e/ou seja igual a uma data alterada, aplique o W.O!\n";
 
     // 4. Análise de logs
     echo "\n" . $bold . $branco . "[+] Analisando logs de alteração de horário...\n";
@@ -340,7 +340,7 @@ function verificarConfiguracoesTemporais() {
         }
         echo $bold . $branco . "\n[AÇÃO] Verifique se houve alteração durante a partida\n";
     } else {
-        echo $bold . $fverde . "[\u2713] Nenhuma alteração de horário detectada nos logs\n";
+        echo $bold . $fverde . "[✓] Nenhuma alteração de horário detectada nos logs\n";
     }
 
     echo "\n" . $bold . $azul . "[=== FIM DA VERIFICAÇÃO TEMPORAL ===]\n" . $reset . "\n";
