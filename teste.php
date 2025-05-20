@@ -51,7 +51,7 @@ function scanner_ff_adb() {
 
     system("clear");
     keller_banner();
-
+}
     // Verifica se o ADB está instalado
     if (!shell_exec("adb version > /dev/null 2>&1")) {
         system("pkg install -y android-tools > /dev/null 2>&1");
