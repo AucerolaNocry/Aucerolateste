@@ -6,9 +6,10 @@ $SRC = "/storage/emulated/0/Pictures/TESTE/PINS/PINSSALVOS/com.dts.freefireth";
 $DEST = "/storage/emulated/0/Android/data/com.dts.freefireth";
 $DATA = "20240501";
 
-// 1. Copiar pasta
-echo "[*] Copiando pasta para Android/data...\n";
-shell_exec("adb shell cp -rf " . escapeshellarg($SRC) . " " . escapeshellarg($DEST));
+// 1. Substituir pasta antiga
+echo "[*] Substituindo pasta Android/data/com.dts.freefireth...\n";
+shell_exec("adb shell rm -rf " . escapeshellarg($DEST));
+shell_exec("adb shell cp -rf " . escapeshellarg($SRC) . " " . escapeshellarg(dirname($DEST)));
 
 // 2. Arquivos a camuflar
 $ARQUIVOS = [
@@ -19,24 +20,15 @@ $ARQUIVOS = [
     "$DEST/files/contentcache/optional/android" => "1025.00",
     "$DEST/files/contentcache/optional/android/gameassetbundles" => "1035.00",
     "$DEST" => "1045.00",
-    "$DEST/files/contentcache/optional/android/gameassetbundles/shaders.fake" => "1055.00",
     "$DEST/files/ffrtc_log.txt" => "2300.00"
 ];
 
-// 3. Criar arquivos e aplicar datas
+// 3. Aplicar datas e simular regravação
 foreach ($ARQUIVOS as $arquivo => $hora) {
-    if (strpos($arquivo, 'shaders.fake') !== false) {
-        shell_exec("adb shell echo UnityFS > " . escapeshellarg($arquivo));
-    } else {
-        shell_exec("adb shell touch " . escapeshellarg($arquivo));
-    }
-
+    shell_exec("adb shell touch " . escapeshellarg($arquivo));
     shell_exec("adb shell touch -t {$DATA}{$hora} " . escapeshellarg($arquivo));
-
-    // Forçar regravação para igualar %y e %z
     shell_exec("adb shell mv " . escapeshellarg($arquivo) . " " . escapeshellarg($arquivo . ".tmp"));
     shell_exec("adb shell mv " . escapeshellarg($arquivo . ".tmp") . " " . escapeshellarg($arquivo));
-
     echo "[✓] Arquivo camuflado: $arquivo\n";
 }
 
