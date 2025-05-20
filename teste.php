@@ -1,6 +1,6 @@
 <?php
 
-// ===== DEFINIÇÃO DE CORES ANSI =====
+// ===== CORES ANSI =====
 $branco     = "\033[97m";
 $preto      = "\033[30m\033[1m";
 $lverdebg   = "\033[102m";
@@ -19,23 +19,91 @@ $verde      = "\033[92m";
 $vermelho   = "\033[91m";
 $azul       = "\033[34m";
 $fverde     = "\033[32m";
+$cln        = "\033[0m";
+$bold       = "\033[1m";
 
-// ===== FORMATAÇÃO EXTRA =====
-$cln  = "\033[0m";
-$bold = "\033[1m";
-
-// ===== FUNÇÃO BANNER =====
+// ===== BANNER ESTILO PRINT =====
 function keller_banner() {
-    echo "\033[37m
-¢¶VÆÆW%52æG&ö–Aµ³3fÒgV6¶–ær6†VFW'1µ³“Ñµ³3vÒF—66÷&BævröÆÆ–æ6Vöf–6–Áµ³“Ð¢
-)       (     (          (     ¢‚ò‚•Â’•Â’•Â’&#0;¢•Â‚’’‚‚‚’ò‚‚‚’ò‚‚‚‚’ò‚&#0;¢Â‚…ò•Â•Âò…ò’’ò…ò’’•Âò…ò’’&#0;¢Åò‚…ò’‚…ò’…ò’’…ò’’‚…ò’…ò’’
-| |/ / | __|| |   | |   | __|| _ \  
-' <  | _| | |__ | |__ | _| |   /  
-_|\_\ |___||____||____||___||_|_\  
-ª
-\033[36m{C} Coded By - KellerSS | Credits for Sheik                                    ¡µ³3&Ð¢
-";
+    global $azul, $ciano, $vermelho, $branco, $cln;
+    echo "{$azul}" . date('H:i') . "  🚗🚗 •\n";
+    echo "{$branco}KellerSS Android Fucking Cheaters discord.gg/allianceoficial{$cln}\n\n";
+    echo "{$vermelho}";
+    echo "      (  (  (  (  (  (  (  (  (  (  (  (\n";
+    echo "      )  )  )  )  )  )  )  )  )  )  )  )\n";
+    echo "     (  (  (  (  (  (  (  (  (  (  (  (\n";
+    echo "     )  )  )  )  )  )  )  )  )  )  )  )\n";
+    echo "     (  (  (  (  (  (  (  (  (  (  (  (\n";
+    echo "     )  )  )  )  )  )  )  )  )  )  )  )\n";
+    echo "{$cln}\n";
+    echo "{$ciano}(C) Coded By – KellerSS | Credits for Sheik{$cln}\n";
+    echo "\n";
+    echo "{$azul}══════════════════════════════════════════════════{$cln}\n";
+    echo "                 KellerSS Menu\n";
+    echo "{$azul}══════════════════════════════════════════════════{$cln}\n";
 }
+
+// ===== MENU IGUAL AO PRINT =====
+function menu_principal() {
+    global $amarelo, $verde, $vermelho, $branco, $cln, $bold, $azul, $lazul;
+    echo "{$amarelo}[0]{$cln} Instalar Módulos {$branco}(Atualizar e instalar módulos){$cln}\n";
+    echo "{$verde}[1]{$cln} Escanear FreeFire Normal\n";
+    echo "{$vermelho}[2]{$cln} Escanear FreeFire Max\n";
+    echo "{$azul}[S]{$cln} Sair\n";
+    echo "\n{$lazul}{$bold}[/] Escolha uma das opções acima: {$cln}";
+}
+
+// ===== FUNÇÃO ATUALIZAR SCRIPT VIA GIT =====
+function atualizar() {
+    global $cln, $bold, $fverde;
+    echo "{$cln}";
+    system("git fetch origin && git reset --hard origin/master && git clean -f -d");
+    echo $bold . $fverde . "Script atualizado com sucesso!{$cln}\n";
+    die;
+}
+
+// ======= SCANNER FREEFIRE NORMAL =======
+function escanear_freefire_normal() {
+    // Aqui você pode adaptar com suas funções internas...
+    echo "\n[Scanner FreeFire Normal]\n";
+    // Seu código de scanner vai aqui!
+}
+
+// ======= SCANNER FREEFIRE MAX =======
+function escanear_freefire_max() {
+    echo "\n[Scanner FreeFire Max]\n";
+    // Seu código de scanner vai aqui!
+}
+
+// ============ FLUXO PRINCIPAL ============
+system("clear");
+keller_banner();
+menu_principal();
+
+// ==== LEITURA DO INPUT ====
+$opcaoscanner = strtoupper(trim(fgets(STDIN)));
+
+// ==== SWITCH DE OPÇÕES ====
+switch ($opcaoscanner) {
+    case '0':
+        echo "\nInstalando módulos...\n";
+        atualizar();
+        break;
+    case '1':
+        escanear_freefire_normal();
+        break;
+    case '2':
+        escanear_freefire_max();
+        break;
+    case 'S':
+        echo "\nSaindo...\n";
+        exit;
+    default:
+        echo "\n{$vermelho}Opção inválida!{$cln}\n";
+        break;
+}
+
+?>
+
 
 // ===== FUNÇÃO ATUALIZAR SCRIPT VIA GIT =====
 function atualizar() {
