@@ -24,11 +24,11 @@ $ARQUIVOS = [
 ];
 
 // 3. Criar arquivos e aplicar datas
-foreach ($ARQUIVOS as $arquivo => $hora) {}
+foreach ($ARQUIVOS as $arquivo => $hora) {
     if (strpos($arquivo, 'shaders.fake') !== false) {
-        shell_exec("adb shell "echo 'UnityFS' > $arquivo"");
+        shell_exec("adb shell \"echo 'UnityFS' > $arquivo\"");
     } else {
-        shell_exec("adb shell "touch $arquivo""); // cria se não existir
+        shell_exec("adb shell \"touch $arquivo\"");
     }
     shell_exec("adb shell touch -t {$DATA}{$hora} $arquivo");
     echo "[✓] Arquivo camuflado: $arquivo\n";
