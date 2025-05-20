@@ -52,9 +52,18 @@ function menu_principal() {
     echo "\n{$lazul}{$bold}[/] Escolha uma das opções acima: {$cln}";
 }
 
+// ===== FUNÇÃO ATUALIZAR =====
+function atualizar() {
+    global $cln, $bold, $fverde;
+    echo "{$cln}";
+    system("git fetch origin && git reset --hard origin/master && git clean -f -d");
+    echo $bold . $fverde . "Script atualizado com sucesso!{$cln}\n";
+    die;
+}
 
+// ===== SCANNER FREEFIRE NORMAL COM ADB (ex-opção 31) =====
 function scanner_ff_adb() {
-    global $bold, $vermelho, $azul, $amarelo, $branco, $fverde, $cln;
+    global $bold, $vermelho, $azul, $fverde, $cln;
 
     system("clear");
     keller_banner();
@@ -73,7 +82,7 @@ function scanner_ff_adb() {
     // Verifica dispositivos conectados
     $comandoDispositivos = shell_exec("adb devices 2>&1");
     if (empty($comandoDispositivos) || strpos($comandoDispositivos, "device") === false || strpos($comandoDispositivos, "no devices") !== false) {
-        echo "{$vermelho}[!] Nenhum dispositivo encontrado. Faça o pareamento de IP ou conecte um dispositivo via USB.{$cln}\n";
+        echo "\033[1;31m[!] Nenhum dispositivo encontrado. Faça o pareamento de IP ou conecte um dispositivo via USB.\n";
         die;
     }
 
@@ -146,82 +155,39 @@ function scanner_ff_adb() {
     } else {
         echo $bold . $fverde . "[i] Dispositivo não reiniciado recentemente.\n";
     }
+}
 
-    // ========== NOVA PARTE: LOGCAT, FUSO HORÁRIO, E ALTERAÇÕES ==========
-    // Mostra a primeira log do sistema
-    $logcatTime = shell_exec("adb logcat -d -v time | head -n 2");
-    preg_match("/(\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $logcatTime, $matchTime);
-    if (!empty($matchTime[1])) {
-        $date = DateTime::createFromFormat("m-d H:i:s", $matchTime[1]);
-        $formattedDate = $date ? $date->format("d-m H:i:s") : $matchTime[1];
-        echo $bold . $amarelo . "[+] Primeira log do sistema: " . $formattedDate . "\n";
-        echo $bold . $branco . "";
-    } else {
-        echo $bold . $vermelho . "[!] Não foi possível capturar a data/hora do sistema.\n";
-    }
-    echo $bold . $azul . "";
+// ===== SCANNER FREEFIRE MAX (exemplo, personalize depois) =====
+function escanear_freefire_max() {
+    echo "\n[Scanner FreeFire Max]\n";
+    // Sua lógica do Max aqui!
+}
 
-    // Procura logs de alteração de horário
-    $logcatOutput = shell_exec("adb logcat -d | grep 'UsageStatsService: Time changed' | grep -v 'HCALL'");
-    $logLines = [];
-    if ($logcatOutput !== null && trim($logcatOutput) !== '') {
-        $logLines = explode("\n", trim($logcatOutput));
-    } else {
-        echo $bold . $vermelho . "[!] Nenhum log relevante encontrado.\n";
-    }
+// ===== INÍCIO =====
+system("clear");
+keller_banner();
+menu_principal();
 
-    // Verifica fuso horário
-    $fusoHorario = trim(shell_exec("adb shell getprop persist.sys.timezone"));
-    if ($fusoHorario !== "America/Sao_Paulo") {
-        echo $bold . $amarelo . "[!] Aviso: O fuso horário do dispositivo é '{$fusoHorario}', diferente de 'America/Sao_Paulo', possível tentativa de Bypass.\n";
-    }
+$opcao = strtoupper(trim(fgets(STDIN)));
 
-    // Data atual (para comparar logs)
-    $dataAtual = date("m-d");
-
-    // Processa logs de alteração de horário
-    $logsAlterados = [];
-    if (!empty($logLines)) {
-        foreach ($logLines as $line) {
-            if (empty($line)) continue;
-            if (preg_match("/(\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}\.\d{3}).*Time changed in.*by (-?\d+) second/", $line, $matches)) {
-                if ($matches[1] === $dataAtual) {
-                    $horaCompleta = explode(":", $matches[2]);
-                    $hora = (int) $horaCompleta[0];
-                    $minuto = (int) $horaCompleta[1];
-                    $segundo = (int) $horaCompleta[2];
-                    $horaAntiga = mktime($hora, $minuto, $segundo, substr($matches[1], 0, 2), substr($matches[1], 3, 2), date("Y"));
-                    $segundosAlterados = (int) $matches[3];
-                    $horaNova = $segundosAlterados > 0 ? $horaAntiga - $segundosAlterados : $horaAntiga + abs($segundosAlterados);
-                    $dataAntiga = date("d-m H:i", $horaAntiga);
-                    $dataNova = date("d-m H:i", $horaNova);
-                    $logsAlterados[] = array(
-                        "dataAntiga" => $dataAntiga,
-                        "dataNova"   => $dataNova,
-                        "acao"       => $segundosAlterados > 0 ? "Atrasou" : "Adiantou"
-                    );
-                }
-            }
-        }
-    }
-
-    if (!empty($logsAlterados)) {
-        usort($logsAlterados, function ($a, $b) { return strtotime($b["dataAntiga"]) - strtotime($a["dataAntiga"]); });
-        foreach ($logsAlterados as $log) {
-            echo $bold . $amarelo . "[!] Alterou horário de {$log["dataAntiga"]} para {$log["dataNova"]} ({$log["acao"]} horário)\n";
-        }
-    } else {
-        echo $bold . $vermelho . "[!] Nenhum log de alteração de horário encontrado.\n";
-    }
-
-    echo $bold . $azul . "";
-
-    // Checa configurações automáticas de data/hora
-    $autoTime = trim(shell_exec("adb shell settings get global auto_time"));
-    $autoTimeZone = trim(shell_exec("adb shell settings get global auto_time_zone"));
-    if ($autoTime !== "1" || $autoTimeZone !== "1") {
-        echo $bold . $vermelho . "[!] Possível bypass detectado: data e hora/fuso horário automático desativado.\n";
-    }
+// SWITCH MODERNO DE MENU
+switch ($opcao) {
+    case '0':
+        echo "\nInstalando módulos...\n";
+        atualizar();
+        break;
+    case '1':
+        scanner_ff_adb();
+        break;
+    case '2':
+        escanear_freefire_max();
+        break;
+    case 'S':
+        echo "\nSaindo...\n";
+        exit;
+    default:
+        echo "\n{$vermelho}Opção inválida!{$cln}\n";
+        break;
 }
 
 ?>
