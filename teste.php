@@ -263,7 +263,7 @@ function verificar_replay_e_clipboard() {
 
     foreach ($arquivos as $indice => $arquivo) {
         $resultadoStat = shell_exec("adb shell stat " . escapeshellarg($arquivo));
-        
+    }
         if (
             preg_match("/Access: (.*?)\\n/", $resultadoStat, $matchAccess) &&
             preg_match("/Modify: (.*?)\\n/", $resultadoStat, $matchModify) &&
