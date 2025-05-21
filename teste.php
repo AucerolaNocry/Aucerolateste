@@ -404,14 +404,14 @@ function verificar_pastas_gameassetbundles() {
         "/sdcard/Android/data",
         "/sdcard/Android"
     );
-}
+
     foreach ($pastasParaVerificar as $pasta) {
         $comandoStat = "adb shell stat " . escapeshellarg($pasta) . " 2>&1";
         $resultadoStat = shell_exec($comandoStat);
 
         if (strpos($resultadoStat, "File:") !== false) {
-            preg_match("/Modify: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchModify);
-            preg_match("/Change: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchChange);
+            preg_match("/Modify: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/", $resultadoStat, $matchModify);
+            preg_match("/Change: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/", $resultadoStat, $matchChange);
 
             if ($matchModify && $matchChange) {
                 $dataModify = trim($matchModify[1]);
@@ -420,19 +420,20 @@ function verificar_pastas_gameassetbundles() {
                 if ($dataModify !== $dataChange) {
                     $nomefinalpasta = basename($pasta);
                     $dateTimeChange = DateTime::createFromFormat("Y-m-d H:i:s", $dataChange);
-                    $dataChangeFormatada = $dateTimeChange ? $dateTimeChange->format("d-m-Y H:i:s") : $dataChange;
+                    $dataFormatada = $dateTimeChange ? $dateTimeChange->format("d-m-Y H:i:s") : $dataChange;
 
-                    echo "\n{$vermelho}[!] Bypass de renomear/substituir na pasta: {$nomefinalpasta}! Confira se o horário é após a partida, se sim, aplique o W.O!\n";
-                    echo "{$amarelo}[i] Horário da modificação: {$laranja}{$dataChangeFormatada}{$cln}\n";
+                    echo "\n{$vermelho}[!] Bypass de renomear/substituir na pasta: {$nomefinalpasta}!{$cln}\n";
+                    echo "{$amarelo}[i] Horário da modificação: {$laranja}{$dataFormatada}{$cln}\n";
+                    echo "{$vermelho}[!] Confira se o horário é após a partida, se sim, aplique o W.O!{$cln}\n";
                 }
             }
         }
     }
 
-    // Parte 2 - Verificação após o replay
+    // =================== PARTE 2: VERIFICAÇÃO APÓS O REPLAY ===================
     echo "\n{$azul}[+] Verificando alterações após o replay...{$cln}\n";
 
-    $comandoFindBin = "adb shell ls -t '/sdcard/Android/data/com.dts.freefireth/files/MReplays' | grep '\\\.bin$' | head -n 1";
+    $comandoFindBin = "adb shell ls -t '/sdcard/Android/data/com.dts.freefireth/files/MReplays' | grep '\\.bin$' | head -n 1";
     $arquivoBinMaisRecente = shell_exec($comandoFindBin);
 
     if (!empty($arquivoBinMaisRecente)) {
@@ -440,9 +441,9 @@ function verificar_pastas_gameassetbundles() {
         $caminhoCompletoBin = "/sdcard/Android/data/com.dts.freefireth/files/MReplays/{$arquivoBinMaisRecente}";
 
         $resultadoStatBin = shell_exec("adb shell stat " . escapeshellarg($caminhoCompletoBin));
-        preg_match("/Access: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStatBin, $matchAccessBin);
+        preg_match("/Access: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/", $resultadoStatBin, $matchAccessBin);
 
-        if (!empty($matchAccessBin)) {
+        if (!empty($matchAccessBin[1])) {
             $dataAccessBin = $matchAccessBin[1];
             $timestampAccessBinOriginal = strtotime($dataAccessBin);
             $timestampAccessBinComMargem = $timestampAccessBinOriginal - 600; // 10 minutos
@@ -456,9 +457,9 @@ function verificar_pastas_gameassetbundles() {
             foreach ($pastasParaVerificar as $pasta) {
                 $resultadoStat = shell_exec("adb shell stat " . escapeshellarg($pasta));
 
-                preg_match("/Access: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchAccess);
-                preg_match("/Modify: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchModify);
-                preg_match("/Change: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchChange);
+                preg_match("/Access: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/", $resultadoStat, $matchAccess);
+                preg_match("/Modify: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/", $resultadoStat, $matchModify);
+                preg_match("/Change: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/", $resultadoStat, $matchChange);
 
                 if ($matchAccess && $matchModify && $matchChange) {
                     $timestampAccess = strtotime($matchAccess[1]);
@@ -476,15 +477,18 @@ function verificar_pastas_gameassetbundles() {
                 }
             }
 
-            echo $bypassDetectado
-                ? "{$vermelho}[!] Possível bypass por alteração após o replay. Aplique o W.O!{$cln}\n"
-                : "{$fverde}[i] Nenhuma alteração suspeita após o replay.{$cln}\n";
+            if ($bypassDetectado) {
+                echo "{$vermelho}[!] Possível bypass por alteração após o replay. Aplique o W.O!{$cln}\n";
+            } else {
+                echo "{$fverde}[i] Nenhuma alteração suspeita após o replay.{$cln}\n";
+            }
+
         } else {
             echo "{$amarelo}[!] Não foi possível obter hora de acesso do replay.{$cln}\n";
         }
+
     } else {
         echo "{$vermelho}[!] Nenhum replay recente encontrado para análise.{$cln}\n";
     }
-
-
+}
 menu();
