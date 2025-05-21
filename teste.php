@@ -15,7 +15,7 @@ function keller_banner() {
     global $cln, $azulclaro, $vermelho, $roxo, $verde, $amarelo, $branco;
 
     echo $azulclaro . date("H:i") . "  💎💎💎 •\n" . $cln;
-    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n\n";
+    echo "{$branco}Aucerola Android {$vermelho}Scanner #Nocry {$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n\n";
 
     echo "{$azulclaro}";
     echo "              .     '     ,\n";
@@ -24,7 +24,7 @@ function keller_banner() {
     echo "               '. \\   / .'\n";
     echo "                 '.\\ /.'\n";
     echo "                   '.'\n";
-    echo "            💎  K  E  L  L  E  R  S  S  💎\n";
+    echo "            💎  A U C E R O L A  💎\n";
     echo "                   .'.\n";
     echo "                 .'\\ /'.\n";
     echo "               .' /   \\ '.\n";
@@ -34,7 +34,7 @@ function keller_banner() {
     echo "\n{$azulclaro}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
 
     echo "{$azulclaro}+------------------------------+\n";
-    echo "|         KellerSS Menu        |\n";
+    echo "|         AUCEROLA Menu        |\n";
     echo "+------------------------------+{$cln}\n";
 
     echo "{$amarelo}[0] Instalar Módulos{$cln} {$branco}(Atualizar e instalar módulos)\n";
@@ -155,6 +155,7 @@ function verificar_dispositivo($pacote) {
     }
     verificar_horario();
     verificar_replay_e_clipboard();
+    verificar_pastas_gameassetbundles();
     exit;
 }
 function verificar_horario() {
@@ -386,6 +387,47 @@ function verificar_replay_e_clipboard() {
     echo "{$amarelo}[+] Data de acesso da pasta MReplays: {$dataFormatada}\n";
     echo "{$amarelo}[+] Data de instalação do Free Fire: {$dataInstalacaoFormatada}\n";
     echo "{$branco}[#] Verifique a data de instalação do jogo com a data de acesso da pasta MReplays para ver se o jogo foi recém instalado antes da partida, se não, vá no histórico e veja se o player jogou outras partidas recentemente, se sim, aplique o W.O!{$cln}\n";
+}
+function verificar_pastas_gameassetbundles() {
+    global $bold, $azul, $vermelho, $cln;
+
+    echo "\n{$azul}[+] Verificando alterações em pastas críticas do Free Fire...{$cln}\n";
+
+    $pastasParaVerificar = array(
+        "/sdcard/Android/data/com.dts.freefireth/files/contentcache/Optional/android/gameassetbundles",
+        "/sdcard/Android/data/com.dts.freefireth/files/contentcache/Optional/android",
+        "/sdcard/Android/data/com.dts.freefireth/files/contentcache/Optional",
+        "/sdcard/Android/data/com.dts.freefireth/files/contentcache",
+        "/sdcard/Android/data/com.dts.freefireth/files",
+        "/sdcard/Android/data/com.dts.freefireth",
+        "/sdcard/Android/data",
+        "/sdcard/Android"
+    );
+
+    foreach ($pastasParaVerificar as $pasta) {
+        $comandoStat = "adb shell stat " . escapeshellarg($pasta) . " 2>&1";
+        $resultadoStat = shell_exec($comandoStat);
+
+        if (strpos($resultadoStat, "File:") !== false) {
+            preg_match("/Modify: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchModify);
+            preg_match("/Change: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchChange);
+
+            if ($matchModify && $matchChange) {
+                $dataModify = trim($matchModify[1]);
+                $dataChange = trim($matchChange[1]);
+
+                if ($dataModify !== $dataChange) {
+                    $nomefinalpasta = basename($pasta);
+                    $dateTimeChange = DateTime::createFromFormat("Y-m-d H:i:s", $dataChange);
+                    $dataChangeFormatada = $dateTimeChange ? $dateTimeChange->format("d-m-Y H:i:s") : $dataChange;
+
+                    echo "{$vermelho}[!] Bypass de renomear/substituir na pasta: {$nomefinalpasta}! ";
+                    echo "Confira se o horário é após a partida, se sim, aplique o W.O! ";
+                    echo "(Modificado em: {$dataChangeFormatada}){$cln}\n";
+                }
+            }
+        }
+    }
 }
 // ========== INICIAR ==========
 menu();
