@@ -336,16 +336,13 @@ function verificar_replay_e_clipboard() {
 
                 if (!in_array($jsonAccess, $dataBinTimes)) {
                     $motivos[] = "Motivo 8 - " . basename($jsonPath);
-                }
-            }
-        }
-    }
-}
-$resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefireth/files/MReplays 2>/dev/null");
+                    // === Parte 2 ===
+    $resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefireth/files/MReplays 2>/dev/null");
 
     if ($resultadoPasta) {
-        preg_match_all("/^(Access|Modify|Change):\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d+)/m", $resultadoPasta, $matches, PREG_SET_ORDER);
-        $timestamps = array();
+        preg_match_all("/^(Access|Modify|Change):\s(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoPasta, $matches, PREG_SET_ORDER);
+
+        $timestamps = [];
         foreach ($matches as $match) {
             $timestamps[$match[1]] = trim($match[2]);
         }
@@ -355,45 +352,46 @@ $resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefi
             $pastaChangeTime = strtotime($timestamps["Change"]);
 
             if ($ultimoModifyTime && $pastaModifyTime > $ultimoModifyTime) {
-                $motivos[] = "Motivo 7 - Modificação na pasta após o último replay.";
+                $motivos[] = "Motivo 7 - Pasta modificada após o último replay";
             }
 
             if ($ultimoChangeTime && $pastaChangeTime > $ultimoChangeTime) {
-                $motivos[] = "Motivo 7 - Alteração na pasta após o último replay.";
+                $motivos[] = "Motivo 7 - Pasta alterada após o último replay";
             }
 
             if (
                 $timestamps["Access"] === $timestamps["Modify"] &&
                 $timestamps["Modify"] === $timestamps["Change"]
             ) {
-                $motivos[] = "Motivo 5 - Todos os timestamps são idênticos.";
+                $motivos[] = "Motivo 5 - Nenhuma alteração nos timestamps da pasta";
             }
 
             if (
-                preg_match("/\\.0+$/", $timestamps["Modify"]) ||
-                preg_match("/\\.0+$/", $timestamps["Change"])
+                preg_match("/\.0+$/", $timestamps["Modify"]) ||
+                preg_match("/\.0+$/", $timestamps["Change"])
             ) {
-                $motivos[] = "Motivo 6 - Timestamp com milissegundos zerados.";
+                $motivos[] = "Motivo 6 - Timestamp inválido (zeros)";
             }
 
             if ($timestamps["Modify"] !== $timestamps["Change"]) {
-                $motivos[] = "Motivo 11 - Modify e Change da pasta são diferentes.";
+                $motivos[] = "Motivo 11 - Modify e Change diferentes na pasta";
             }
 
+            // Comparar data do nome do replay com Modify da pasta
             if ($arquivoMaisRecente && isset($timestamps["Access"])) {
-                if (preg_match("/(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})/", basename($arquivoMaisRecente), $match)) {
-                    $nomeNormalizado = str_replace("2d", '', $match[1]);
-                    $modifyPastaNormalizado = str_replace(array("2d", "20", "3a"), '', $timestamps["Modify"]);
+                if (preg_match("/(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})/", basename($arquivoMaisRecente), $match)) {
+                    $nomeNormalizado = str_replace("-", "", $match[1]);
+                    $modifyPastaNormalizado = preg_replace("/[\s:\-]/", '', $timestamps["Modify"]);
 
-                    if (preg_match("/\\.(\\d{2})(\\d+)/", $timestamps["Access"], $milisegundosMatch)) {
+                    if (preg_match("/\.(\d{2})(\d+)/", $timestamps["Access"], $milisegundosMatch)) {
                         $doisPrimeiros = (int) $milisegundosMatch[1];
                         $restante = $milisegundosMatch[2];
-                        $todosZeros = preg_match("/^0+$/", $milisegundosMatch[0]);
 
+                        $todosZeros = preg_match("/^0+$/", $milisegundosMatch[0]);
                         $condicaoValida = $doisPrimeiros <= 90 && preg_match("/^0+$/", $restante);
 
                         if (($todosZeros || $condicaoValida) && $nomeNormalizado !== $modifyPastaNormalizado) {
-                            $motivos[] = "Motivo 9 - Incompatibilidade entre nome e modificação da pasta.";
+                            $motivos[] = "Motivo 9 - Incompatibilidade entre nome do replay e alteração da pasta";
                         }
                     }
                 }
@@ -401,28 +399,29 @@ $resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefi
         }
     }
 
+    // Exibir motivos encontrados
     if (!empty($motivos)) {
-        echo "{$vermelho}";
+        echo "{$vermelho}[!] Passador de replay detectado, aplique o W.O!\n";
         foreach (array_unique($motivos) as $motivo) {
-            echo "    - {$motivo}\n";
+            echo "   - {$motivo}\n";
         }
     } else {
-        echo "{$fverde}[✔] Nenhuma alteração suspeita detectada nos replays.{$cln}\n";
+        echo "{$fverde}[i] Nenhuma alteração suspeita detectada nos replays.{$cln}\n";
     }
 
+    // Exibir data de acesso da pasta e data de instalação
     if (!empty($resultadoPasta)) {
-        preg_match("/Access: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d+)/", $resultadoPasta, $matchAccessPasta);
+        preg_match("/Access: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoPasta, $matchAccessPasta);
 
         if (!empty($matchAccessPasta[1])) {
             $dataAccessPasta = trim($matchAccessPasta[1]);
-            $dataAccessPastaSemMilesimos = preg_replace("/\\.\\d+.*\$/", '', $dataAccessPasta);
-            $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $dataAccessPastaSemMilesimos);
-            $dataFormatada = $dateTime ? $dateTime->format("d-m-Y H:i:s") : $dataAccessPastaSemMilesimos;
+            $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $dataAccessPasta);
+            $dataFormatada = $dateTime ? $dateTime->format("d-m-Y H:i:s") : $dataAccessPasta;
 
             $cmd = "adb shell dumpsys package com.dts.freefireth | grep -i firstInstallTime";
             $firstInstallTime = shell_exec($cmd);
 
-            if (preg_match("/firstInstallTime=([\\d-]+ \\d{2}:\\d{2}:\\d{2})/", $firstInstallTime, $matches)) {
+            if (preg_match("/firstInstallTime=([\d-]+ \d{2}:\d{2}:\d{2})/", $firstInstallTime, $matches)) {
                 $dataInstalacao = trim($matches[1]);
                 $dateTimeInstalacao = DateTime::createFromFormat("Y-m-d H:i:s", $dataInstalacao);
                 $dataInstalacaoFormatada = $dateTimeInstalacao ? $dateTimeInstalacao->format("d-m-Y H:i:s") : "Formato inválido";
@@ -430,13 +429,16 @@ $resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefi
                 $dataInstalacaoFormatada = "Não encontrada";
             }
 
-            echo "{$amarelo}[+] Data de acesso da pasta MReplays: {$dataFormatada}{$cln}\n";
+            echo "{$amarelo}[*] Data de acesso da pasta MReplays: {$dataFormatada}{$cln}\n";
             echo "{$amarelo}[*] Data de instalação do Free Fire: {$dataInstalacaoFormatada}{$cln}\n";
-            echo "{$branco}[#] Compare a instalação com o acesso à MReplays. Se o jogo foi instalado logo antes da partida, ou se há anomalias, aplique o W.O!{$cln}\n";
+            echo "{$branco}[#] Verifique a data de instalação do jogo com a data de acesso da pasta MReplays para ver se o jogo foi recém-instalado antes da partida. Caso o player tenha jogado outras partidas recentemente, aplique o W.O!{$cln}\n";
         }
     }
-{
-    echo "{$cln}";
+                }
+            }
+        }
+    }
 }
+
 // ========== INICIAR ==========
 menu();
