@@ -155,6 +155,7 @@ function verificar_dispositivo($pacote) {
     }
     verificar_horario();
     verificar_replay_e_clipboard();
+    verificar_pastas_gameassetbundles();
     exit;
 }
 function verificar_horario() {
@@ -388,7 +389,8 @@ function verificar_replay_e_clipboard() {
     echo "{$branco}[#] Verifique a data de instalação do jogo com a data de acesso da pasta MReplays para ver se o jogo foi recém instalado antes da partida, se não, vá no histórico e veja se o player jogou outras partidas recentemente, se sim, aplique o W.O!{$cln}\n";
 }
 
-function verificar_replay_e_clipboard() {}
+
+function verificar_pastas_gameassetbundles() {
     global $bold, $azulclaro, $amarelo, $branco, $vermelho, $fverde, $verde, $azul, $cln;
 
     // Parte 1 - Verificação de alterações em gameassetbundles e pastas relacionadas
@@ -486,5 +488,6 @@ function verificar_replay_e_clipboard() {}
     } else {
         echo "{$vermelho}[!] Nenhum replay recente encontrado para análise.{$cln}\n";
     }
+}
 
 menu();
