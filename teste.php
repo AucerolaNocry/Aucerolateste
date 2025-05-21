@@ -1,24 +1,22 @@
+
 <?php
 
 // ========== CORES ==========
 $cln      = "\033[0m";
 $bold     = "\033[1m";
-$preto    = "\033[30;1m";
-$vermelho = "\033[91m";
-$verde    = "\033[92m";
-$amarelo  = "\033[93m";
-$azul     = "\033[34m";
-$magenta  = "\033[35m";
-$ciano    = "\033[36m";
-$branco   = "\033[97m";
-$fverde   = "\033[32m";
+$azulclaro = "\033[1;36m";
+$verde    = "\033[1;32m";
+$vermelho = "\033[1;31m";
+$roxo     = "\033[1;35m";
+$branco   = "\033[1;37m";
+$amarelo  = "\033[1;33m";
 
 // ========== BANNER ==========
 function keller_banner() {
-    global $cln, $azul, $vermelho, $amarelo, $verde, $ciano, $branco;
+    global $azulclaro, $vermelho, $ciano, $branco;
 
-    echo $azul . date("H:i") . "  🚗🚗🚗 •\n" . $cln;
-    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$ciano}discord.gg/allianceoficial{$cln}\n\n";
+    echo $azulclaro . date("H:i") . "  🚗🚗🚗 •\n" . $cln;
+    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n\n";
 
     echo "{$vermelho}";
     echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
@@ -26,9 +24,9 @@ function keller_banner() {
     echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
     echo $cln;
 
-    echo "\n{$ciano}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
+    echo "\n{$azulclaro}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
 
-    echo "{$azul}+------------------------------+\n";
+    echo "{$azulclaro}+------------------------------+\n";
     echo "|         KellerSS Menu        |\n";
     echo "+------------------------------+{$cln}\n\n";
 
@@ -40,15 +38,15 @@ function keller_banner() {
 
 // ========== MENU ==========
 function menu() {
-    global $ciano, $cln;
+    global $azulclaro, $cln;
 
-    echo "\033c"; // limpa a tela antes do menu
+    echo "\033c"; // limpar tela
     keller_banner();
 
-    echo "{$ciano}[#] Escolha uma das opções acima: {$cln}";
+    echo "{$azulclaro}[#] Escolha uma das opções acima: {$cln}";
     $opcao = trim(fgets(STDIN));
 
-    echo "\033c"; // limpa a tela após digitar a opção
+    echo "\033c"; // limpar depois da escolha
 
     switch ($opcao) {
         case "0":
@@ -63,7 +61,7 @@ function menu() {
         case "3":
             exit;
         default:
-            echo "\nOpção inválida. Tente novamente.\n";
+            echo "{$vermelho}[!] Opção inválida.{$cln}\n";
             sleep(2);
             menu();
     }
@@ -71,65 +69,62 @@ function menu() {
 
 // ========== ATUALIZAR ==========
 function atualizar() {
-    global $cln, $bold, $fverde;
-    echo "{$cln}";
+    global $azulclaro, $cln;
+
+    echo "{$azulclaro}[+] Atualizando repositório KellerSS...{$cln}\n";
     system("git fetch origin && git reset --hard origin/master && git clean -f -d");
-    echo $bold . $fverde . "Atualização completa!" . $cln;
-    die;
+    echo "{$verde}[-] Atualização completa!{$cln}\n";
+    exit;
 }
 
-// ========== VERIFICAR DISPOSITIVO ==========
+// ========== VERIFICAÇÃO DISPOSITIVO ==========
 function verificar_dispositivo($pacote) {
-    global $bold, $azul, $vermelho, $fverde, $cln;
+    global $azulclaro, $verde, $vermelho, $roxo, $cln;
 
+    // Verifica se adb está instalado
     if (!shell_exec("adb version > /dev/null 2>&1")) {
+        echo "{$vermelho}[!] ADB não instalado. Instalando...{$cln}\n";
         system("pkg install -y android-tools > /dev/null 2>&1");
     }
 
     date_default_timezone_set("America/Sao_Paulo");
     shell_exec("adb start-server > /dev/null 2>&1");
 
+    // Verifica dispositivo
     $dispositivos = shell_exec("adb devices 2>&1");
-
     if (empty($dispositivos) || strpos($dispositivos, "device") === false || strpos($dispositivos, "no devices") !== false) {
-        echo $vermelho . "[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.\n";
-        die;
+        echo "{$vermelho}[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.{$cln}\n";
+        exit;
     }
 
+    // Verifica FF ou FF Max
     $verificaFF = shell_exec("adb shell pm list packages | grep $pacote 2>&1");
-
     if (!empty($verificaFF) && strpos($verificaFF, "more than one device/emulator") !== false) {
-        echo $bold . $vermelho . "[!] Vários dispositivos. Use 'adb disconnect' e tente novamente.\n";
-        die;
+        echo "{$vermelho}[!] Vários dispositivos. Use 'adb disconnect' e tente novamente.{$cln}\n";
+        exit;
     }
-
     if (empty($verificaFF) || strpos($verificaFF, $pacote) === false) {
-        echo $bold . $vermelho . "[!] Jogo não encontrado no dispositivo.\n";
-        die;
+        echo "{$vermelho}[!] Jogo não encontrado no dispositivo.{$cln}\n";
+        exit;
     }
 
+    // Versão Android
     $versaoAndroid = trim(shell_exec("adb shell getprop ro.build.version.release"));
-    echo $bold . $azul . "[+] Android: $versaoAndroid\n";
+    echo "{$azulclaro}[+] Versão do Android: {$versaoAndroid}{$cln}\n";
 
+    // Verificação Root
     $verificacoes = [
-        "test_adb"     => "adb shell echo ADB_OK 2>/dev/null",
-        "su_bin1"      => "adb shell '[ -f /system/bin/su ] && echo found' 2>/dev/null",
-        "su_bin2"      => "adb shell '[ -f /system/xbin/su ] && echo found' 2>/dev/null",
-        "su_funciona"  => "adb shell su -c 'id' 2>/dev/null",
-        "which_su"     => "adb shell 'which su' 2>/dev/null",
-        "magisk_ver"   => "adb shell 'su -c magisk --version' 2>/dev/null",
-        "adb_root"     => "adb root 2>/dev/null"
+        "adb shell '[ -f /system/bin/su ] && echo found' 2>/dev/null",
+        "adb shell '[ -f /system/xbin/su ] && echo found' 2>/dev/null",
+        "adb shell su -c 'id' 2>/dev/null",
+        "adb shell 'which su' 2>/dev/null",
+        "adb shell 'su -c magisk --version' 2>/dev/null",
+        "adb root 2>/dev/null"
     ];
 
     $rootDetectado = false;
-    $erroAdb = false;
-
-    foreach ($verificacoes as $nome => $comando) {
+    foreach ($verificacoes as $comando) {
         $resultado = shell_exec($comando);
-        if ($nome === "test_adb" && (empty($resultado) || strpos($resultado, "ADB_OK") === false)) {
-            $erroAdb = true;
-            break;
-        }
         if (!empty($resultado) && (
             strpos($resultado, "uid=0") !== false ||
             strpos($resultado, "found") !== false ||
@@ -140,24 +135,24 @@ function verificar_dispositivo($pacote) {
         }
     }
 
-    if ($erroAdb) {
-        echo $bold . $vermelho . "[!] Erro ao executar comandos ADB.\n";
-    } elseif ($rootDetectado) {
-        echo $bold . $vermelho . "[+] Root detectado no dispositivo Android.\n";
+    if ($rootDetectado) {
+        echo "{$vermelho}[+] Root detectado no dispositivo Android.{$cln}\n";
     } else {
-        echo $bold . $fverde . "[-] Dispositivo sem root.\n";
+        echo "{$verde}[-] O dispositivo não tem root.{$cln}\n";
     }
 
+    // Uptime
+    echo "{$roxo}[+] Checando se o dispositivo foi reiniciado recentemente...{$cln}\n";
     $uptime = shell_exec("adb shell uptime");
     if (preg_match("/up (\d+) min/", $uptime, $match)) {
-        echo $bold . $vermelho . "[!] Dispositivo iniciado há {$match[1]} minutos.\n";
+        echo "{$vermelho}[!] Dispositivo foi iniciado há {$match[1]} minutos.{$cln}\n";
     } else {
-        echo $bold . $fverde . "[i] Dispositivo não reiniciado recentemente.\n";
+        echo "{$verde}[i] Dispositivo não reiniciado recentemente.{$cln}\n";
     }
 
     echo "\n";
     exit;
 }
 
-// ========== INÍCIO ==========
+// ========== EXECUTA ==========
 menu();
