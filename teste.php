@@ -153,10 +153,8 @@ function verificar_dispositivo($pacote) {
     } else {
         echo "{$verde}[i] Dispositivo não reiniciado recentemente.{$cln}\n\n";
     }
-
-    exit;
-}
-function verificar_horario() {
+    verificar_horario();
+    function verificar_horario() {
     global $bold, $azulclaro, $verde, $vermelho, $amarelo, $roxo, $branco, $cln;
 
     // BLOCO 1 - Logcat + alteração de hora
@@ -230,6 +228,10 @@ function verificar_horario() {
     }
 
     echo "{$branco}[+] Caso haja acesso durante/após a partida, aplique o W.O!{$cln}\n\n";
+    }
+
+    exit;
 }
+
 // ========== INICIAR ==========
 menu();
