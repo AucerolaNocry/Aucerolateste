@@ -389,11 +389,9 @@ function verificar_replay_e_clipboard() {
     echo "{$branco}[#] Verifique a data de instalação do jogo com a data de acesso da pasta MReplays para ver se o jogo foi recém instalado antes da partida, se não, vá no histórico e veja se o player jogou outras partidas recentemente, se sim, aplique o W.O!{$cln}\n";
 }
 
-
 function verificar_pastas_gameassetbundles() {
-    global $bold, $azulclaro, $amarelo, $branco, $vermelho, $fverde, $verde, $azul, $cln;
+    global $bold, $azul, $vermelho, $amarelo, $fverde, $laranja, $cln;
 
-    // Parte 1 - Verificação de alterações em gameassetbundles e pastas relacionadas
     echo "\n{$azul}[+] Verificando alterações em pastas críticas do Free Fire...{$cln}\n";
 
     $pastasParaVerificar = array(
@@ -406,7 +404,7 @@ function verificar_pastas_gameassetbundles() {
         "/sdcard/Android/data",
         "/sdcard/Android"
     );
-
+}
     foreach ($pastasParaVerificar as $pasta) {
         $comandoStat = "adb shell stat " . escapeshellarg($pasta) . " 2>&1";
         $resultadoStat = shell_exec($comandoStat);
@@ -424,9 +422,8 @@ function verificar_pastas_gameassetbundles() {
                     $dateTimeChange = DateTime::createFromFormat("Y-m-d H:i:s", $dataChange);
                     $dataChangeFormatada = $dateTimeChange ? $dateTimeChange->format("d-m-Y H:i:s") : $dataChange;
 
-                    echo "{$vermelho}[!] Bypass de renomear/substituir na pasta: {$nomefinalpasta}! ";
-                    echo "Confira se o horário é após a partida, se sim, aplique o W.O! ";
-                    echo "(Modificado em: {$dataChangeFormatada}){$cln}\n";
+                    echo "\n{$vermelho}[!] Bypass de renomear/substituir na pasta: {$nomefinalpasta}! Confira se o horário é após a partida, se sim, aplique o W.O!\n";
+                    echo "{$amarelo}[i] Horário da modificação: {$laranja}{$dataChangeFormatada}{$cln}\n";
                 }
             }
         }
