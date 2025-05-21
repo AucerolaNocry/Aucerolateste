@@ -42,9 +42,15 @@ function keller_banner() {
 function menu() {
     global $ciano, $cln;
 
+    // Limpa a tela antes do menu
+    system("clear");
     keller_banner();
+
     echo "{$ciano}[#] Escolha uma das opções acima: {$cln}";
     $opcao = trim(fgets(STDIN));
+
+    // Limpa a tela após o input
+    system("clear");
 
     switch ($opcao) {
         case "0":
@@ -61,7 +67,6 @@ function menu() {
         default:
             echo "\nOpção inválida. Tente novamente.\n";
             sleep(2);
-            system("clear");
             menu();
     }
 }
@@ -79,7 +84,6 @@ function atualizar() {
 function verificar_dispositivo($pacote) {
     global $bold, $azul, $vermelho, $fverde, $cln;
 
-    system("clear");
     keller_banner();
 
     if (!shell_exec("adb version > /dev/null 2>&1")) {
@@ -92,7 +96,7 @@ function verificar_dispositivo($pacote) {
     $dispositivos = shell_exec("adb devices 2>&1");
 
     if (empty($dispositivos) || strpos($dispositivos, "device") === false || strpos($dispositivos, "no devices") !== false) {
-        echo "[1;31m[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.\n";
+        echo $vermelho . "[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.\n";
         die;
     }
 
