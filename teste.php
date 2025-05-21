@@ -38,10 +38,11 @@ function mostrar_menu() {
     echo "[{$vermelho}3{$cln}] {$bold}{$amarelo}Sair{$cln}\n\n";
 }
 
-// Input estilizado
+// Input estilizado e colorido
 function input_usuario($mensagem) {
-    global $ciano, $cln, $bold;
-    echo "{$ciano}[{$bold}$]{$cln} {$mensagem}: ";
+    global $ciano, $azul, $cln, $bold;
+    echo "\n{$azul}{$bold}{$mensagem}{$cln}\n";
+    echo "{$ciano}[{$bold}$]{$cln} Digite sua opção: ";
     $opcao = trim(fgets(STDIN));
     return $opcao;
 }
