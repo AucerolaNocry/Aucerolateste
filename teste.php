@@ -439,7 +439,7 @@ function verificar_replay_e_clipboard() {
             }
         }
     }
-}
+
 
 // ========== INICIAR ==========
 menu();
