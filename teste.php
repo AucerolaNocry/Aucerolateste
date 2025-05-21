@@ -156,6 +156,80 @@ function verificar_dispositivo($pacote) {
 
     exit;
 }
+function verificar_horario() {
+    global $bold, $azulclaro, $verde, $vermelho, $amarelo, $roxo, $branco, $cln;
 
+    // BLOCO 1 - Logcat + alteração de hora
+    echo "\n{$azulclaro}[+] Verificando mudanças de data/hora...{$cln}\n";
+
+    $logcatTime = shell_exec("adb logcat -d -v time | head -n 2");
+    preg_match("/(\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $logcatTime, $matchTime);
+
+    if (!empty($matchTime[1])) {
+        $date = DateTime::createFromFormat("m-d H:i:s", $matchTime[1]);
+        $formattedDate = $date ? $date->format("d-m H:i:s") : "indefinido";
+        echo "{$amarelo}[i] Primeira log do sistema: {$formattedDate}{$cln}\n";
+    } else {
+        echo "{$vermelho}[!] Erro ao obter logs de modificação de data/hora, verifique a data da primeira log do sistema.{$cln}\n";
+    }
+
+    $logcatOutput = shell_exec("adb logcat -d | grep 'UsageStatsService: Time changed' | grep -v 'HCALL'");
+    $dataAtual = date("m-d");
+    $logsAlterados = [];
+
+    if (!empty($logcatOutput)) {
+        $logLines = explode("\n", trim($logcatOutput));
+        foreach ($logLines as $line) {
+            if (preg_match("/(\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}\.\d{3}).*Time changed in.*by (-?\d+) second/", $line, $matches)) {
+                if ($matches[1] === $dataAtual) {
+                    $horaOriginal = strtotime("{$matches[1]} {$matches[2]}");
+                    $segundos = (int) $matches[3];
+                    $novaHora = $horaOriginal - $segundos;
+
+                    $logsAlterados[] = [
+                        "dataAntiga" => date("d-m H:i", $horaOriginal),
+                        "dataNova"   => date("d-m H:i", $novaHora),
+                        "acao"       => $segundos > 0 ? "Atrasou" : "Adiantou"
+                    ];
+                }
+            }
+        }
+    }
+
+    if (!empty($logsAlterados)) {
+        foreach ($logsAlterados as $log) {
+            echo "{$amarelo}[!] Alterou horário de {$log['dataAntiga']} para {$log['dataNova']} ({$log['acao']}){$cln}\n";
+        }
+    } else {
+        echo "{$vermelho}[!] Nenhum log de alteração de horário encontrado.{$cln}\n";
+    }
+
+    // BLOCO 2 - Hora automática
+    echo "\n{$azulclaro}[+] Checando se modificou data e hora...{$cln}\n";
+
+    $autoTime = trim(shell_exec("adb shell settings get global auto_time"));
+    $autoTimeZone = trim(shell_exec("adb shell settings get global auto_time_zone"));
+
+    if ($autoTime !== "1" || $autoTimeZone !== "1") {
+        echo "{$vermelho}[!] Data e hora/fuso horário automático estão desativados.{$cln}\n";
+    } else {
+        echo "{$verde}[i] Data e hora/fuso horário automático estão ativados.{$cln}\n";
+    }
+
+    echo "{$branco}[+] Caso haja mudança de horário durante/após a partida, aplique o W.O!{$cln}\n";
+
+    // BLOCO 3 - Últimos acessos Google Play
+    echo "\n{$azulclaro}[+] Obtendo os últimos acessos do {$roxo}Google Play Store...{$cln}\n";
+
+    $comandoUSAGE = shell_exec("adb shell dumpsys usagestats | grep -i 'MOVE_TO_FOREGROUND' | grep 'package=com.android.vending' | awk -F'time=\"' '{print $2}' | awk '{gsub(/\"/, \"\"); print $1, $2}' | tail -n 5");
+
+    if (!empty(trim($comandoUSAGE))) {
+        echo "{$verde}[i] Últimos 5 acessos:\n{$amarelo}{$comandoUSAGE}{$cln}\n";
+    } else {
+        echo "{$vermelho}[!] Nenhum dado encontrado.{$cln}\n";
+    }
+
+    echo "{$branco}[+] Caso haja acesso durante/após a partida, aplique o W.O!{$cln}\n\n";
+}
 // ========== INICIAR ==========
 menu();
