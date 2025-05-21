@@ -1,4 +1,3 @@
-
 <?php
 // Cores ANSI
 $cln      = "\033[0m";
@@ -13,21 +12,22 @@ $ciano    = "\033[36m";
 $branco   = "\033[97m";
 $fverde   = "\033[32m";
 
-// Banner KellerSS
+// Banner KellerSS - FIEL AO PRINT
 function keller_banner() {
-    global $cln, $azul, $ciano, $vermelho, $branco;
+    global $cln, $azul, $ciano, $vermelho, $branco, $bold;
     system("clear");
     echo "{$azul}" . date('H:i') . "  🚗🚗 •\n";
     echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$ciano} discord.gg/allianceoficial\n\n";
-    echo $vermelho .
-"    ██╗  ██╗███████╗██╗     ██╗     ███████╗███████╗███████╗
-    ██║ ██╔╝██╔════╝██║     ██║     ██╔════╝██╔════╝██╔════╝
-    █████╔╝ █████╗  ██║     ██║     █████╗  ███████╗███████╗
-    ██╔═██╗ ██╔══╝  ██║     ██║     ██╔══╝  ╚════██║╚════██║
-    ██║  ██╗███████╗███████╗███████╗███████╗███████║███████║
-    ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝╚══════╝╚══════╝
-\n";
-    echo "{$ciano}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
+    // Banner ASCII em vermelho forte, bold
+    echo $bold . $vermelho .
+"██╗  ██╗███████╗██╗     ██╗     ███████╗███████╗███████╗
+██║ ██╔╝██╔════╝██║     ██║     ██╔════╝██╔════╝██╔════╝
+█████╔╝ █████╗  ██║     ██║     █████╗  ███████╗███████╗
+██╔═██╗ ██╔══╝  ██║     ██║     ██╔══╝  ╚════██║╚════██║
+██║  ██╗███████╗███████╗███████╗███████╗███████║███████║
+╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝╚══════╝╚══════╝
+{$cln}";
+    echo "\n{$ciano}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
 }
 
 // Função para mostrar o menu principal
@@ -36,10 +36,10 @@ function mostrar_menu() {
     echo "{$ciano}+-------------------------------+\n";
     echo "|         KellerSS Menu         |\n";
     echo "+-------------------------------+{$cln}\n\n";
-    echo "[{$amarelo}0{$cln}] {$bold}Instalar Módulos{$cln} {$branco}(Atualizar e instalar módulos){$cln}\n";
-    echo "[{$verde}1{$cln}] {$bold}Escanear FreeFire Normal{$cln}\n";
-    echo "[{$verde}2{$cln}] {$bold}Escanear FreeFire Max{$cln}\n";
-    echo "[{$vermelho}3{$cln}] {$bold}Sair{$cln}\n\n";
+    echo "[{$amarelo}0{$cln}] {$branco}Instalar Módulos (Atualizar e instalar módulos){$cln}\n";
+    echo "[{$verde}1{$cln}] {$branco}Escanear FreeFire Normal{$cln}\n";
+    echo "[{$verde}2{$cln}] {$branco}Escanear FreeFire Max{$cln}\n";
+    echo "[{$vermelho}3{$cln}] {$branco}Sair{$cln}\n\n";
 }
 
 // Função de input do usuário
