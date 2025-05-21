@@ -341,5 +341,102 @@ function verificar_replay_e_clipboard() {
         }
     }
 }
+$resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefireth/files/MReplays 2>/dev/null");
+
+    if ($resultadoPasta) {
+        preg_match_all("/^(Access|Modify|Change):\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d+)/m", $resultadoPasta, $matches, PREG_SET_ORDER);
+        $timestamps = array();
+        foreach ($matches as $match) {
+            $timestamps[$match[1]] = trim($match[2]);
+        }
+
+        if (count($timestamps) === 3) {
+            $pastaModifyTime = strtotime($timestamps["Modify"]);
+            $pastaChangeTime = strtotime($timestamps["Change"]);
+
+            if ($ultimoModifyTime && $pastaModifyTime > $ultimoModifyTime) {
+                $motivos[] = "Motivo 7 - Modificação na pasta após o último replay.";
+            }
+
+            if ($ultimoChangeTime && $pastaChangeTime > $ultimoChangeTime) {
+                $motivos[] = "Motivo 7 - Alteração na pasta após o último replay.";
+            }
+
+            if (
+                $timestamps["Access"] === $timestamps["Modify"] &&
+                $timestamps["Modify"] === $timestamps["Change"]
+            ) {
+                $motivos[] = "Motivo 5 - Todos os timestamps são idênticos.";
+            }
+
+            if (
+                preg_match("/\\.0+$/", $timestamps["Modify"]) ||
+                preg_match("/\\.0+$/", $timestamps["Change"])
+            ) {
+                $motivos[] = "Motivo 6 - Timestamp com milissegundos zerados.";
+            }
+
+            if ($timestamps["Modify"] !== $timestamps["Change"]) {
+                $motivos[] = "Motivo 11 - Modify e Change da pasta são diferentes.";
+            }
+
+            if ($arquivoMaisRecente && isset($timestamps["Access"])) {
+                if (preg_match("/(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})/", basename($arquivoMaisRecente), $match)) {
+                    $nomeNormalizado = str_replace("2d", '', $match[1]);
+                    $modifyPastaNormalizado = str_replace(array("2d", "20", "3a"), '', $timestamps["Modify"]);
+
+                    if (preg_match("/\\.(\\d{2})(\\d+)/", $timestamps["Access"], $milisegundosMatch)) {
+                        $doisPrimeiros = (int) $milisegundosMatch[1];
+                        $restante = $milisegundosMatch[2];
+                        $todosZeros = preg_match("/^0+$/", $milisegundosMatch[0]);
+
+                        $condicaoValida = $doisPrimeiros <= 90 && preg_match("/^0+$/", $restante);
+
+                        if (($todosZeros || $condicaoValida) && $nomeNormalizado !== $modifyPastaNormalizado) {
+                            $motivos[] = "Motivo 9 - Incompatibilidade entre nome e modificação da pasta.";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (!empty($motivos)) {
+        echo "{$vermelho}";
+        foreach (array_unique($motivos) as $motivo) {
+            echo "    - {$motivo}\n";
+        }
+    } else {
+        echo "{$fverde}[✔] Nenhuma alteração suspeita detectada nos replays.{$cln}\n";
+    }
+
+    if (!empty($resultadoPasta)) {
+        preg_match("/Access: (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d+)/", $resultadoPasta, $matchAccessPasta);
+
+        if (!empty($matchAccessPasta[1])) {
+            $dataAccessPasta = trim($matchAccessPasta[1]);
+            $dataAccessPastaSemMilesimos = preg_replace("/\\.\\d+.*\$/", '', $dataAccessPasta);
+            $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $dataAccessPastaSemMilesimos);
+            $dataFormatada = $dateTime ? $dateTime->format("d-m-Y H:i:s") : $dataAccessPastaSemMilesimos;
+
+            $cmd = "adb shell dumpsys package com.dts.freefireth | grep -i firstInstallTime";
+            $firstInstallTime = shell_exec($cmd);
+
+            if (preg_match("/firstInstallTime=([\\d-]+ \\d{2}:\\d{2}:\\d{2})/", $firstInstallTime, $matches)) {
+                $dataInstalacao = trim($matches[1]);
+                $dateTimeInstalacao = DateTime::createFromFormat("Y-m-d H:i:s", $dataInstalacao);
+                $dataInstalacaoFormatada = $dateTimeInstalacao ? $dateTimeInstalacao->format("d-m-Y H:i:s") : "Formato inválido";
+            } else {
+                $dataInstalacaoFormatada = "Não encontrada";
+            }
+
+            echo "{$amarelo}[+] Data de acesso da pasta MReplays: {$dataFormatada}{$cln}\n";
+            echo "{$amarelo}[*] Data de instalação do Free Fire: {$dataInstalacaoFormatada}{$cln}\n";
+            echo "{$branco}[#] Compare a instalação com o acesso à MReplays. Se o jogo foi instalado logo antes da partida, ou se há anomalias, aplique o W.O!{$cln}\n";
+        }
+    }
+
+    echo "{$cln}";
+}
 // ========== INICIAR ==========
 menu();
