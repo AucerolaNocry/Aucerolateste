@@ -155,7 +155,6 @@ function verificar_dispositivo($pacote) {
     }
     verificar_horario();
     verificar_replay_e_clipboard();
-    verificar_pastas_gameassetbundles();
     exit;
 }
 function verificar_horario() {
@@ -388,9 +387,11 @@ function verificar_replay_e_clipboard() {
     echo "{$amarelo}[+] Data de instalação do Free Fire: {$dataInstalacaoFormatada}\n";
     echo "{$branco}[#] Verifique a data de instalação do jogo com a data de acesso da pasta MReplays para ver se o jogo foi recém instalado antes da partida, se não, vá no histórico e veja se o player jogou outras partidas recentemente, se sim, aplique o W.O!{$cln}\n";
 }
-function verificar_pastas_gameassetbundles() {
-    global $bold, $azul, $vermelho, $cln;
 
+function verificar_replay_e_clipboard() {
+    global $bold, $azulclaro, $amarelo, $branco, $vermelho, $fverde, $verde, $azul, $cln;
+
+    // Parte 1 - Verificação de alterações em gameassetbundles e pastas relacionadas
     echo "\n{$azul}[+] Verificando alterações em pastas críticas do Free Fire...{$cln}\n";
 
     $pastasParaVerificar = array(
@@ -428,6 +429,62 @@ function verificar_pastas_gameassetbundles() {
             }
         }
     }
-}
-// ========== INICIAR ==========
+
+    // Parte 2 - Verificação após o replay
+    echo "\n{$azul}[+] Verificando alterações após o replay...{$cln}\n";
+
+    $comandoFindBin = "adb shell ls -t '/sdcard/Android/data/com.dts.freefireth/files/MReplays' | grep '\\\.bin$' | head -n 1";
+    $arquivoBinMaisRecente = shell_exec($comandoFindBin);
+
+    if (!empty($arquivoBinMaisRecente)) {
+        $arquivoBinMaisRecente = trim($arquivoBinMaisRecente);
+        $caminhoCompletoBin = "/sdcard/Android/data/com.dts.freefireth/files/MReplays/{$arquivoBinMaisRecente}";
+
+        $resultadoStatBin = shell_exec("adb shell stat " . escapeshellarg($caminhoCompletoBin));
+        preg_match("/Access: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStatBin, $matchAccessBin);
+
+        if (!empty($matchAccessBin)) {
+            $dataAccessBin = $matchAccessBin[1];
+            $timestampAccessBinOriginal = strtotime($dataAccessBin);
+            $timestampAccessBinComMargem = $timestampAccessBinOriginal - 600; // 10 minutos
+
+            $pastasParaVerificar = [
+                "/sdcard/Android/data/com.dts.freefireth/files/contentcache",
+                "/sdcard/Android/data/com.dts.freefireth/files/contentcache/Optional/android"
+            ];
+
+            $bypassDetectado = false;
+            foreach ($pastasParaVerificar as $pasta) {
+                $resultadoStat = shell_exec("adb shell stat " . escapeshellarg($pasta));
+
+                preg_match("/Access: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchAccess);
+                preg_match("/Modify: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchModify);
+                preg_match("/Change: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $resultadoStat, $matchChange);
+
+                if ($matchAccess && $matchModify && $matchChange) {
+                    $timestampAccess = strtotime($matchAccess[1]);
+                    $timestampModify = strtotime($matchModify[1]);
+                    $timestampChange = strtotime($matchChange[1]);
+
+                    if (
+                        $timestampAccess > $timestampAccessBinComMargem ||
+                        $timestampModify > $timestampAccessBinComMargem ||
+                        $timestampChange > $timestampAccessBinComMargem
+                    ) {
+                        $bypassDetectado = true;
+                        break;
+                    }
+                }
+            }
+
+            echo $bypassDetectado
+                ? "{$vermelho}[!] Possível bypass por alteração após o replay. Aplique o W.O!{$cln}\n"
+                : "{$fverde}[i] Nenhuma alteração suspeita após o replay.{$cln}\n";
+        } else {
+            echo "{$amarelo}[!] Não foi possível obter hora de acesso do replay.{$cln}\n";
+        }
+    } else {
+        echo "{$vermelho}[!] Nenhum replay recente encontrado para análise.{$cln}\n";
+    }
+
 menu();
