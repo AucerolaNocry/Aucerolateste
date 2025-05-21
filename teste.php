@@ -42,15 +42,13 @@ function keller_banner() {
 function menu() {
     global $ciano, $cln;
 
-    // Limpa a tela antes do menu
-    system("clear");
+    echo "\033c"; // limpa a tela antes do menu
     keller_banner();
 
     echo "{$ciano}[#] Escolha uma das opções acima: {$cln}";
     $opcao = trim(fgets(STDIN));
 
-    // Limpa a tela após o input
-    system("clear");
+    echo "\033c"; // limpa a tela após o input
 
     switch ($opcao) {
         case "0":
