@@ -485,6 +485,6 @@ function verificar_pastas_gameassetbundles() {
     } else {
         echo "{$vermelho}[!] Nenhum replay recente encontrado para análise.{$cln}\n";
     }
-}
+
 
 menu();
