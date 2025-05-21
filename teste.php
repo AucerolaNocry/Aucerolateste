@@ -82,8 +82,9 @@ function verificar_dispositivo($pacote) {
 
     echo "\n";
 
+    // BLOCO 1: ADB
     if (!shell_exec("adb version > /dev/null 2>&1")) {
-        echo "{$vermelho}[!] ADB não instalado. Instalando...{$cln}\n\n";
+        echo "{$vermelho}[i] ADB não instalado. Instalando...{$cln}\n\n";
         system("pkg install -y android-tools > /dev/null 2>&1");
     }
 
@@ -106,8 +107,9 @@ function verificar_dispositivo($pacote) {
         exit;
     }
 
+    // BLOCO 2: Versão + Root
     $versaoAndroid = trim(shell_exec("adb shell getprop ro.build.version.release"));
-    echo "{$azulclaro}[+] Versão do Android: {$versaoAndroid}{$cln}\n\n";
+    echo "{$azulclaro}[+] Versão do Android: {$versaoAndroid}{$cln}";
 
     $verificacoes = [
         "adb shell '[ -f /system/bin/su ] && echo found' 2>/dev/null",
@@ -132,12 +134,13 @@ function verificar_dispositivo($pacote) {
     }
 
     if ($rootDetectado) {
-        echo "{$vermelho}[+] Root detectado no dispositivo Android.{$cln}\n\n";
+        echo "\n{$vermelho}[+] Root detectado no dispositivo Android.{$cln}\n\n";
     } else {
-        echo "{$verde}[-] O dispositivo não tem root.{$cln}\n\n";
+        echo "\n{$verde}[-] O dispositivo não tem root.{$cln}\n\n";
     }
 
-    echo "{$roxo}[+] Checando se o dispositivo foi reiniciado recentemente...{$cln}\n\n";
+    // BLOCO 3: Uptime (os dois juntos)
+    echo "{$roxo}[+] Checando se o dispositivo foi reiniciado recentemente...{$cln}\n";
     $uptime = shell_exec("adb shell uptime");
     if (preg_match("/up (\d+) min/", $uptime, $match)) {
         echo "{$vermelho}[!] Dispositivo foi iniciado há {$match[1]} minutos.{$cln}\n\n";
