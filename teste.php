@@ -435,7 +435,7 @@ $resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefi
             echo "{$branco}[#] Compare a instalação com o acesso à MReplays. Se o jogo foi instalado logo antes da partida, ou se há anomalias, aplique o W.O!{$cln}\n";
         }
     }
-
+{
     echo "{$cln}";
 }
 // ========== INICIAR ==========
