@@ -336,6 +336,7 @@ function verificar_replay_e_clipboard() {
 
                 if (!in_array($jsonAccess, $dataBinTimes)) {
                     $motivos[] = "Motivo 8 - " . basename($jsonPath);
+                }
                     // === Parte 2 ===
     $resultadoPasta = shell_exec("adb shell stat /sdcard/Android/data/com.dts.freefireth/files/MReplays 2>/dev/null");
 
