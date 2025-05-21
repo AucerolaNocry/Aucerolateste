@@ -9,16 +9,14 @@ $amarelo  = "\033[93m";
 $azul     = "\033[34m";
 $magenta  = "\033[35m";
 $ciano    = "\033[36m";
-$branco   = "\033[97m";
 $fverde   = "\033[32m";
 
 // Banner KellerSS - FIEL AO PRINT
 function keller_banner() {
-    global $cln, $azul, $ciano, $vermelho, $branco, $bold;
+    global $cln, $azul, $ciano, $vermelho, $bold;
     system("clear");
     echo "{$azul}" . date('H:i') . "  🚗🚗 •\n";
-    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$ciano} discord.gg/allianceoficial\n\n";
-    // Banner ASCII em vermelho forte, bold
+    echo "KellerSS Android {$vermelho}Fucking Cheaters{$ciano} discord.gg/allianceoficial\n\n";
     echo $bold . $vermelho .
 "██╗  ██╗███████╗██╗     ██╗     ███████╗███████╗███████╗
 ██║ ██╔╝██╔════╝██║     ██║     ██╔════╝██╔════╝██╔════╝
@@ -32,14 +30,14 @@ function keller_banner() {
 
 // Função para mostrar o menu principal
 function mostrar_menu() {
-    global $cln, $bold, $azul, $amarelo, $verde, $vermelho, $ciano, $branco;
+    global $cln, $bold, $azul, $amarelo, $verde, $vermelho, $ciano;
     echo "{$ciano}+-------------------------------+\n";
     echo "|         KellerSS Menu         |\n";
     echo "+-------------------------------+{$cln}\n\n";
-    echo "[{$amarelo}0{$cln}] {$branco}Instalar Módulos (Atualizar e instalar módulos){$cln}\n";
-    echo "[{$verde}1{$cln}] {$branco}Escanear FreeFire Normal{$cln}\n";
-    echo "[{$verde}2{$cln}] {$branco}Escanear FreeFire Max{$cln}\n";
-    echo "[{$vermelho}3{$cln}] {$branco}Sair{$cln}\n\n";
+    echo "[{$amarelo}0{$cln}] Instalar Módulos (Atualizar e instalar módulos)\n";
+    echo "[{$verde}1{$cln}] Escanear FreeFire Normal\n";
+    echo "[{$verde}2{$cln}] Escanear FreeFire Max\n";
+    echo "[{$vermelho}3{$cln}] Sair\n\n";
 }
 
 // Função de input do usuário
