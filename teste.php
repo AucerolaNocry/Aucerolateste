@@ -165,7 +165,7 @@ function verificar_horario() {
 
     if (!empty($matchTime[1])) {
         $date = DateTime::createFromFormat("m-d H:i:s", $matchTime[1]);
-        $formattedDate = $date ? $date->format("d-m H:i:s") : "indefinido";
+        $formattedDate = $date ? $date->format("d-m-Y H:i:s") : "indefinido";
         echo "{$amarelo}[i] Primeira log do sistema: {$formattedDate}{$cln}\n";
     } else {
         echo "{$vermelho}[!] Erro ao obter logs de modificação de data/hora, verifique a data da primeira log do sistema.{$cln}\n";
@@ -184,8 +184,8 @@ function verificar_horario() {
                     $segundos = (int) $matches[3];
                     $novaHora = $horaOriginal - $segundos;
                     $logsAlterados[] = [
-                        "dataAntiga" => date("d-m H:i", $horaOriginal),
-                        "dataNova"   => date("d-m H:i", $novaHora),
+                        "dataAntiga" => date("d-m-Y H:i", $horaOriginal),
+                        "dataNova"   => date("d-m-Y H:i", $novaHora),
                         "acao"       => $segundos > 0 ? "Atrasou" : "Adiantou"
                     ];
                 }
@@ -216,7 +216,7 @@ function verificar_horario() {
     echo "\n{$azulclaro}[+] Obtendo os últimos acessos do {$roxo}Google Play Store...{$cln}\n";
     $comandoUSAGE = shell_exec("adb shell dumpsys usagestats | grep -i 'MOVE_TO_FOREGROUND' | grep 'package=com.android.vending' | awk -F'time=\"' '{print $2}' | awk '{gsub(/\"/, \"\"); print $1, $2}' | tail -n 5");
 
-    if (!empty(trim($comandoUSAGE))) {
+    if (!empty($comandoUSAGE) && trim($comandoUSAGE) !== '') {
         echo "{$verde}[i] Últimos 5 acessos:\n{$amarelo}{$comandoUSAGE}{$cln}\n";
     } else {
         echo "{$vermelho}[!] Nenhum dado encontrado.{$cln}\n";
