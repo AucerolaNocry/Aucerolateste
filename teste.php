@@ -1,90 +1,82 @@
 <?php
 
-// ========== CORES ANSI ==========
-$cln        = "\033[0m";
-$bold       = "\033[1m";
-$preto      = "\033[30;1m";
-$vermelho   = "\033[91m";
-$verde      = "\033[92m";
-$amarelo    = "\033[93m";
-$azul       = "\033[34m";
-$magenta    = "\033[35m";
-$ciano      = "\033[36m";
-$branco     = "\033[97m";
-$fverde     = "\033[32m";
-
-$vermelhobg = "\033[101m";
-$verdebg    = "\033[42m";
-$amarelobg  = "\033[43m";
-$lazulbg    = "\033[106m";
-$lverdebg   = "\033[102m";
-$lamarelobg = "\033[103m";
+// ========== CORES ==========
+$cln      = "\033[0m";
+$bold     = "\033[1m";
+$preto    = "\033[30;1m";
+$vermelho = "\033[91m";
+$verde    = "\033[92m";
+$amarelo  = "\033[93m";
+$azul     = "\033[34m";
+$magenta  = "\033[35m";
+$ciano    = "\033[36m";
+$branco   = "\033[97m";
+$fverde   = "\033[32m";
 
 // ========== BANNER ==========
 function keller_banner() {
-    echo "\033[1;36m
-     _  __     _ _        ____  ____  
-    | |/ /__ _| | | ___  |  _ \|  _ \ 
-    | ' // _` | | |/ _ \ | |_) | | | |
-    | . \ (_| | | | (_) ||  __/| |_| |
-    |_|\_\__,_|_|_|\___(_)_|   |____/ 
-    \033[1;37mCoded By - KellerSS | Credits for Sheik\033[0m\n";
-}
+    global $cln, $azul, $vermelho, $amarelo, $verde, $ciano, $branco;
 
-// ========== ATUALIZAR ==========
-function atualizar() {
-    global $cln, $bold, $fverde;
+    echo $azul . date("H:i") . "  🚗🚗🚗 •\n" . $cln;
+    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$ciano}discord.gg/allianceoficial{$cln}\n\n";
+
+    echo "{$vermelho}";
+    echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
+    echo "        K  E  L  L  E  R  S  S\n";
+    echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
     echo $cln;
-    system("git fetch origin && git reset --hard origin/master && git clean -f -d");
-    echo $bold . $fverde . "Repositório atualizado com sucesso!" . $cln;
-    die;
+
+    echo "\n{$ciano}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
+
+    echo "{$azul}+------------------------------+\n";
+    echo "|         KellerSS Menu        |\n";
+    echo "+------------------------------+{$cln}\n\n";
+
+    echo "{$amarelo}[0] Instalar Módulos{$cln} {$branco}(Atualizar e instalar módulos)\n";
+    echo "{$verde}[1] Escanear FreeFire Normal{$cln}\n";
+    echo "{$verde}[2] Escanear FreeFire Max{$cln}\n";
+    echo "{$vermelho}[3] Sair{$cln}\n\n";
 }
 
 // ========== MENU ==========
-function menu_principal() {
-    global $azul, $amarelo, $branco, $fverde, $vermelho, $cln;
+function menu() {
+    global $ciano, $cln;
 
-    system("clear");
     keller_banner();
-
-    echo $amarelo . " [0] Instalar Módulos" . $cln;
-    echo $fverde . " [30] Scanner - Iniciar verificação completa" . $cln;
-    echo $fverde . " [31] Verificar conexão ADB e root" . $cln;
-    echo $fverde . " [32] [Em breve]" . $cln;
-    echo $fverde . " [53] [Em breve]" . $cln;
-    echo $cln;
-
-    $opcao = inputusuario("Escolha uma das opções acima: ");
+    echo "{$ciano}[#] Escolha uma das opções acima: {$cln}";
+    $opcao = trim(fgets(STDIN));
 
     switch ($opcao) {
         case "0":
             atualizar();
             break;
-
-        case "30":
-            // [pendente: conteúdo do scanner]
+        case "1":
+            verificar_dispositivo("com.dts.freefireth");
             break;
-
-        case "31":
-            verificar_dispositivo();
+        case "2":
+            verificar_dispositivo("com.dts.freefiremax");
             break;
-
+        case "3":
+            exit;
         default:
-            echo $vermelho . "[!] Opção inválida." . $cln;
+            echo "\nOpção inválida. Tente novamente.\n";
             sleep(2);
-            menu_principal();
-            break;
+            system("clear");
+            menu();
     }
 }
 
-// ========== ENTRADA DE DADOS ==========
-function inputusuario($mensagem) {
-    echo $mensagem;
-    return trim(fgets(STDIN));
+// ========== ATUALIZAR ==========
+function atualizar() {
+    global $cln, $bold, $fverde;
+    echo "{$cln}";
+    system("git fetch origin && git reset --hard origin/master && git clean -f -d");
+    echo $bold . $fverde . "Atualização completa!" . $cln;
+    die;
 }
 
-// ========== VERIFICAÇÕES ADB/ROOT ==========
-function verificar_dispositivo() {
+// ========== VERIFICAR DISPOSITIVO ==========
+function verificar_dispositivo($pacote) {
     global $bold, $azul, $vermelho, $fverde, $cln;
 
     system("clear");
@@ -97,36 +89,36 @@ function verificar_dispositivo() {
     date_default_timezone_set("America/Sao_Paulo");
     shell_exec("adb start-server > /dev/null 2>&1");
 
-    $comandoDispositivos = shell_exec("adb devices 2>&1");
+    $dispositivos = shell_exec("adb devices 2>&1");
 
-    if (empty($comandoDispositivos) || strpos($comandoDispositivos, "device") === false || strpos($comandoDispositivos, "no devices") !== false) {
-        echo $vermelho . "[!] Nenhum dispositivo encontrado. Conecte via USB ou IP." . $cln;
+    if (empty($dispositivos) || strpos($dispositivos, "device") === false || strpos($dispositivos, "no devices") !== false) {
+        echo "[1;31m[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.\n";
         die;
     }
 
-    $comandoVerificarFF = shell_exec("adb shell pm list packages | grep com.dts.freefireth 2>&1");
+    $verificaFF = shell_exec("adb shell pm list packages | grep $pacote 2>&1");
 
-    if (!empty($comandoVerificarFF) && strpos($comandoVerificarFF, "more than one device/emulator") !== false) {
-        echo $vermelho . "[!] Vários dispositivos conectados. Use 'adb disconnect' e tente novamente." . $cln;
+    if (!empty($verificaFF) && strpos($verificaFF, "more than one device/emulator") !== false) {
+        echo $bold . $vermelho . "[!] Vários dispositivos. Use 'adb disconnect' e tente novamente.\n";
         die;
     }
 
-    if (empty($comandoVerificarFF) || strpos($comandoVerificarFF, "com.dts.freefireth") === false) {
-        echo $vermelho . "[!] Free Fire não instalado." . $cln;
+    if (empty($verificaFF) || strpos($verificaFF, $pacote) === false) {
+        echo $bold . $vermelho . "[!] Jogo não encontrado no dispositivo.\n";
         die;
     }
 
     $versaoAndroid = trim(shell_exec("adb shell getprop ro.build.version.release"));
-    echo $azul . "[+] Versão do Android: {$versaoAndroid}" . $cln;
+    echo $bold . $azul . "[+] Android: $versaoAndroid\n";
 
     $verificacoes = [
-        "test_adb"     => "adb shell echo ADB_OK",
-        "su_bin1"      => "adb shell '[ -f /system/bin/su ] && echo found'",
-        "su_bin2"      => "adb shell '[ -f /system/xbin/su ] && echo found'",
-        "su_funciona"  => "adb shell su -c 'id'",
-        "which_su"     => "adb shell 'which su'",
-        "magisk_ver"   => "adb shell 'su -c magisk --version'",
-        "adb_root"     => "adb root"
+        "test_adb"     => "adb shell echo ADB_OK 2>/dev/null",
+        "su_bin1"      => "adb shell '[ -f /system/bin/su ] && echo found' 2>/dev/null",
+        "su_bin2"      => "adb shell '[ -f /system/xbin/su ] && echo found' 2>/dev/null",
+        "su_funciona"  => "adb shell su -c 'id' 2>/dev/null",
+        "which_su"     => "adb shell 'which su' 2>/dev/null",
+        "magisk_ver"   => "adb shell 'su -c magisk --version' 2>/dev/null",
+        "adb_root"     => "adb root 2>/dev/null"
     ];
 
     $rootDetectado = false;
@@ -149,22 +141,23 @@ function verificar_dispositivo() {
     }
 
     if ($erroAdb) {
-        echo $vermelho . "[!] Erro ao executar comandos ADB." . $cln;
+        echo $bold . $vermelho . "[!] Erro ao executar comandos ADB.\n";
     } elseif ($rootDetectado) {
-        echo $vermelho . "[+] Root detectado no dispositivo Android." . $cln;
+        echo $bold . $vermelho . "[+] Root detectado no dispositivo Android.\n";
     } else {
-        echo $fverde . "[-] O dispositivo não tem root." . $cln;
+        echo $bold . $fverde . "[-] Dispositivo sem root.\n";
     }
 
     $uptime = shell_exec("adb shell uptime");
     if (preg_match("/up (\d+) min/", $uptime, $match)) {
-        echo $vermelho . "[!] O dispositivo foi reiniciado há {$match[1]} minutos." . $cln;
+        echo $bold . $vermelho . "[!] Dispositivo iniciado há {$match[1]} minutos.\n";
     } else {
-        echo $fverde . "[i] Dispositivo não reiniciado recentemente." . $cln;
+        echo $bold . $fverde . "[i] Dispositivo não reiniciado recentemente.\n";
     }
+
+    echo "\n";
+    exit;
 }
 
-// ========== INICIAR ==========
-menu_principal();
-
-?>
+// ========== INÍCIO ==========
+menu();
