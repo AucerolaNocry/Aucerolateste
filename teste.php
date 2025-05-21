@@ -1,17 +1,20 @@
 <?php
-echo "====== INICIANDO CAMUFLAGEM AVANÇADA ANTI-SCANNER ======\n";
+echo "====== INICIANDO CAMUFLAGEM AVANÇADA SEM SUBSTITUIR PASTA ======\n";
 
 // Configuração
 $SRC = "/storage/emulated/0/Pictures/TESTE/PINS/PINSSALVOS/com.dts.freefireth";
 $DEST = "/storage/emulated/0/Android/data/com.dts.freefireth";
 $DATA = "20240501";
 
-// 1. Substituir pasta antiga
-echo "[*] Substituindo pasta Android/data/com.dts.freefireth...\n";
-shell_exec("adb shell rm -rf " . escapeshellarg($DEST));
-shell_exec("adb shell cp -rf " . escapeshellarg($SRC) . " " . escapeshellarg(dirname($DEST)));
+// 1. Limpar conteúdo interno da pasta, mantendo a pasta original
+echo "[*] Limpando conteúdo antigo da pasta...\n";
+shell_exec("adb shell rm -rf " . escapeshellarg("$DEST/*"));
 
-// 2. Arquivos a camuflar
+// 2. Copiar conteúdo da nova pasta para a original
+echo "[*] Substituindo conteúdo da pasta mantendo estrutura...\n";
+shell_exec("adb shell cp -rf " . escapeshellarg("$SRC/*") . " " . escapeshellarg($DEST));
+
+// 3. Arquivos a camuflar (pode incluir diretórios)
 $ARQUIVOS = [
     "$DEST/files/ShaderStripSettings" => "0930.00",
     "$DEST/files" => "0945.00",
@@ -23,7 +26,7 @@ $ARQUIVOS = [
     "$DEST/files/ffrtc_log.txt" => "2300.00"
 ];
 
-// 3. Aplicar datas e simular regravação
+// 4. Aplicar datas e simular regravação
 foreach ($ARQUIVOS as $arquivo => $hora) {
     shell_exec("adb shell touch " . escapeshellarg($arquivo));
     shell_exec("adb shell touch -t {$DATA}{$hora} " . escapeshellarg($arquivo));
@@ -32,14 +35,14 @@ foreach ($ARQUIVOS as $arquivo => $hora) {
     echo "[✓] Arquivo camuflado: $arquivo\n";
 }
 
-// 4. Abrir Free Fire
+// 5. Abrir Free Fire
 echo "[*] Abrindo Free Fire...\n";
 shell_exec("adb shell monkey -p com.dts.freefireth -c android.intent.category.LAUNCHER 1");
 sleep(5);
 
-// 5. Abrir Discord
+// 6. Abrir Discord
 echo "[*] Abrindo Discord...\n";
 shell_exec("adb shell monkey -p com.discord -c android.intent.category.LAUNCHER 1");
 
-echo "====== CAMUFLAGEM COMPLETA ======\n";
+echo "====== CAMUFLAGEM COMPLETA (PASTA PRESERVADA) ======\n";
 ?>
