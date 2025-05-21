@@ -48,7 +48,7 @@ function menu() {
     echo "{$ciano}[#] Escolha uma das opções acima: {$cln}";
     $opcao = trim(fgets(STDIN));
 
-    echo "\033c"; // limpa a tela após o input
+    echo "\033c"; // limpa a tela após digitar a opção
 
     switch ($opcao) {
         case "0":
@@ -81,8 +81,6 @@ function atualizar() {
 // ========== VERIFICAR DISPOSITIVO ==========
 function verificar_dispositivo($pacote) {
     global $bold, $azul, $vermelho, $fverde, $cln;
-
-    keller_banner();
 
     if (!shell_exec("adb version > /dev/null 2>&1")) {
         system("pkg install -y android-tools > /dev/null 2>&1");
