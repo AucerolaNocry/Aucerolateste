@@ -10,18 +10,28 @@ $roxo      = "\033[1;35m";
 $branco    = "\033[1;37m";
 $amarelo   = "\033[1;33m";
 
-// ========== BANNER ==========
+// ========== BANNER COM DIAMANTE ==========
 function keller_banner() {
     global $cln, $azulclaro, $vermelho, $roxo, $verde, $amarelo, $branco;
 
-    echo $azulclaro . date("H:i") . "  🚗🚗🚗 •\n" . $cln;
-    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n";
+    echo $azulclaro . date("H:i") . "  💎💎💎 •\n" . $cln;
+    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n\n";
 
-    echo "{$vermelho}🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
-    echo "        K  E  L  L  E  R  S  S\n";
-    echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥{$cln}\n";
+    echo "{$azulclaro}";
+    echo "              .     '     ,\n";
+    echo "                _________\n";
+    echo "             _ /_|_____|_\\ _\n";
+    echo "               '. \\   / .'\n";
+    echo "                 '.\\ /.'\n";
+    echo "                   '.'\n";
+    echo "            💎  K  E  L  L  E  R  S  S  💎\n";
+    echo "                   .'.\n";
+    echo "                 .'\\ /'.\n";
+    echo "               .' /   \\ '.\n";
+    echo "             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
+    echo $cln;
 
-    echo "{$azulclaro}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
+    echo "\n{$azulclaro}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
 
     echo "{$azulclaro}+------------------------------+\n";
     echo "|         KellerSS Menu        |\n";
@@ -147,5 +157,5 @@ function verificar_dispositivo($pacote) {
     exit;
 }
 
-// ========== EXECUTAR ==========
+// ========== INICIAR ==========
 menu();
