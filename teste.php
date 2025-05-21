@@ -225,7 +225,7 @@ function verificar_horario() {
 
     echo "{$branco}[+] Caso haja acesso durante/após a partida, aplique o W.O!{$cln}\n\n";
 }
-
+verificar_replay_e_clipboard();
 function verificar_replay_e_clipboard() {
     global $bold, $azulclaro, $amarelo, $branco, $vermelho, $fverde, $cln;
 
