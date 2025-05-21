@@ -154,12 +154,12 @@ function verificar_dispositivo($pacote) {
         echo "{$verde}[i] Dispositivo não reiniciado recentemente.{$cln}\n\n";
     }
     verificar_horario();
-    function verificar_horario() {
+    exit;
+}
+function verificar_horario() {
     global $bold, $azulclaro, $verde, $vermelho, $amarelo, $roxo, $branco, $cln;
 
-    // BLOCO 1 - Logcat + alteração de hora
     echo "\n{$azulclaro}[+] Verificando mudanças de data/hora...{$cln}\n";
-
     $logcatTime = shell_exec("adb logcat -d -v time | head -n 2");
     preg_match("/(\d{2}-\d{2} \d{2}:\d{2}:\d{2})/", $logcatTime, $matchTime);
 
@@ -183,7 +183,6 @@ function verificar_dispositivo($pacote) {
                     $horaOriginal = strtotime("{$matches[1]} {$matches[2]}");
                     $segundos = (int) $matches[3];
                     $novaHora = $horaOriginal - $segundos;
-
                     $logsAlterados[] = [
                         "dataAntiga" => date("d-m H:i", $horaOriginal),
                         "dataNova"   => date("d-m H:i", $novaHora),
@@ -202,9 +201,7 @@ function verificar_dispositivo($pacote) {
         echo "{$vermelho}[!] Nenhum log de alteração de horário encontrado.{$cln}\n";
     }
 
-    // BLOCO 2 - Hora automática
     echo "\n{$azulclaro}[+] Checando se modificou data e hora...{$cln}\n";
-
     $autoTime = trim(shell_exec("adb shell settings get global auto_time"));
     $autoTimeZone = trim(shell_exec("adb shell settings get global auto_time_zone"));
 
@@ -216,9 +213,7 @@ function verificar_dispositivo($pacote) {
 
     echo "{$branco}[+] Caso haja mudança de horário durante/após a partida, aplique o W.O!{$cln}\n";
 
-    // BLOCO 3 - Últimos acessos Google Play
     echo "\n{$azulclaro}[+] Obtendo os últimos acessos do {$roxo}Google Play Store...{$cln}\n";
-
     $comandoUSAGE = shell_exec("adb shell dumpsys usagestats | grep -i 'MOVE_TO_FOREGROUND' | grep 'package=com.android.vending' | awk -F'time=\"' '{print $2}' | awk '{gsub(/\"/, \"\"); print $1, $2}' | tail -n 5");
 
     if (!empty(trim($comandoUSAGE))) {
@@ -228,9 +223,6 @@ function verificar_dispositivo($pacote) {
     }
 
     echo "{$branco}[+] Caso haja acesso durante/após a partida, aplique o W.O!{$cln}\n\n";
-    }
-
-    exit;
 }
 
 // ========== INICIAR ==========
