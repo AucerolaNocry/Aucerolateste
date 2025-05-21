@@ -154,6 +154,7 @@ function verificar_dispositivo($pacote) {
         echo "{$verde}[i] Dispositivo não reiniciado recentemente.{$cln}\n\n";
     }
     verificar_horario();
+    verificar_replay_e_clipboard();
     exit;
 }
 function verificar_horario() {
@@ -225,13 +226,12 @@ function verificar_horario() {
 
     echo "{$branco}[+] Caso haja acesso durante/após a partida, aplique o W.O!{$cln}\n\n";
 }
-verificar_replay_e_clipboard();
 function verificar_replay_e_clipboard() {
     global $bold, $azulclaro, $amarelo, $branco, $vermelho, $fverde, $cln;
 
     echo "\n{$azulclaro}[+] Obtendo os últimos textos copiados...{$cln}\n";
 
-    $comando = "adb logcat -d | grep 'hcallSetClipboardTextRpc' | sed -E 's/^([0-9]{2}-[0-9]{2}) ([0-9]{2}:[0-9]{2}:[0-9]{2}).*hcallSetClipboardTextRpc\([^)]*)\.*/\\1 \\2 \\3/' | tail -n 10";
+    $comando = "adb logcat -d | grep 'hcallSetClipboardTextRpc' | sed -E 's/^([0-9]{2}-[0-9]{2}) ([0-9]{2}:[0-9]{2}:[0-9]{2}).*hcallSetClipboardTextRpc\([^)]*)\.*/\\1 \\2 \\3/' | tail -n 10";
     $saida = shell_exec($comando);
 
     if (!is_null($saida)) {
@@ -244,6 +244,8 @@ function verificar_replay_e_clipboard() {
                 echo "{$amarelo}[!] {$data} {$hora} {$branco}{$conteudo}{$cln}\n";
             }
         }
+    } else {
+        echo "{$vermelho}[!] Nenhum dado encontrado.{$cln}\n";
     }
 
     echo "\n{$azulclaro}[+] Checando se o replay foi passado...{$cln}\n";
@@ -263,15 +265,15 @@ function verificar_replay_e_clipboard() {
 
     foreach ($arquivos as $indice => $arquivo) {
         $resultadoStat = shell_exec("adb shell stat " . escapeshellarg($arquivo));
-    }
+
         if (
             preg_match("/Access: (.*?)\\n/", $resultadoStat, $matchAccess) &&
             preg_match("/Modify: (.*?)\\n/", $resultadoStat, $matchModify) &&
             preg_match("/Change: (.*?)\\n/", $resultadoStat, $matchChange)
         ) {
-            $dataAccess = trim(preg_replace("/ -\\d{4}$/", '', $matchAccess[1]));
-            $dataModify = trim(preg_replace("/ -\\d{4}$/", '', $matchModify[1]));
-            $dataChange = trim(preg_replace("/ -\\d{4}$/", '', $matchChange[1]));
+            $dataAccess = trim(preg_replace("/ -\\d{4}\$/", '', $matchAccess[1]));
+            $dataModify = trim(preg_replace("/ -\\d{4}\$/", '', $matchModify[1]));
+            $dataChange = trim(preg_replace("/ -\\d{4}\$/", '', $matchChange[1]));
 
             $accessTime = strtotime($dataAccess);
             $modifyTime = strtotime($dataModify);
@@ -287,9 +289,9 @@ function verificar_replay_e_clipboard() {
             }
 
             if (
-                preg_match("/\\.0+$/", $dataAccess) ||
-                preg_match("/\\.0+$/", $dataModify) ||
-                preg_match("/\\.0+$/", $dataChange)
+                preg_match("/\\.0+\$/", $dataAccess) ||
+                preg_match("/\\.0+\$/", $dataModify) ||
+                preg_match("/\\.0+\$/", $dataChange)
             ) {
                 $motivos[] = "Motivo 2 - " . basename($arquivo);
             }
@@ -303,13 +305,13 @@ function verificar_replay_e_clipboard() {
 
                 if (preg_match("/(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})/", basename($arquivo), $match)) {
                     $nomeNormalizado = preg_replace(
-                        "/^(\\d{4})-(\\d{2})-(\\d{2})-(\\d{2})-(\\d{2})-(\\d{2})$/",
+                        "/^(\\d{4})-(\\d{2})-(\\d{2})-(\\d{2})-(\\d{2})-(\\d{2})\$/",
                         "$1-$2-$3 $4:$5:$6",
                         $match[1]
                     );
 
                     $nomeTimestamp = strtotime($nomeNormalizado);
-                    $dataModifyLimpo = preg_replace("/\\.\\d+$/", '', $dataModify);
+                    $dataModifyLimpo = preg_replace("/\\.\\d+\$/", '', $dataModify);
                     $modifyTimestamp = strtotime($dataModifyLimpo);
 
                     if ($nomeTimestamp !== false && $modifyTimestamp !== false) {
@@ -325,11 +327,11 @@ function verificar_replay_e_clipboard() {
                 }
             }
 
-            $jsonPath = preg_replace("/\\.bin$/", ".json", $arquivo);
+            $jsonPath = preg_replace("/\\.bin\$/", ".json", $arquivo);
             $jsonStat = shell_exec("adb shell stat " . escapeshellarg($jsonPath) . " 2>/dev/null");
 
             if ($jsonStat && preg_match("/Access: (.*?)\\n/", $jsonStat, $matchJsonAccess)) {
-                $jsonAccess = trim(preg_replace("/ -\\d{4}$/", '', $matchJsonAccess[1]));
+                $jsonAccess = trim(preg_replace("/ -\\d{4}\$/", '', $matchJsonAccess[1]));
                 $dataBinTimes = array($dataAccess, $dataModify, $dataChange);
 
                 if (!in_array($jsonAccess, $dataBinTimes)) {
@@ -338,7 +340,6 @@ function verificar_replay_e_clipboard() {
             }
         }
     }
-
-    // Parte 2 continua...
+}
 // ========== INICIAR ==========
 menu();
