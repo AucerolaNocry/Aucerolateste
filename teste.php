@@ -14,7 +14,7 @@ $amarelo   = "\033[1;33m";
 function keller_banner() {
     global $cln, $azulclaro, $vermelho, $roxo, $verde, $amarelo, $branco;
 
-    echo $azulclaro . date("H:i") . "  🚗🚗🚗 •\n" . $cln;
+    echo $azulclaro . date("H:i") . "  🚗🚗🚗 •\n\n" . $cln;
     echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n\n";
 
     echo "{$vermelho}";
@@ -29,9 +29,9 @@ function keller_banner() {
     echo "|         KellerSS Menu        |\n";
     echo "+------------------------------+{$cln}\n\n";
 
-    echo "{$amarelo}[0] Instalar Módulos{$cln} {$branco}(Atualizar e instalar módulos)\n";
-    echo "{$verde}[1] Escanear FreeFire Normal{$cln}\n";
-    echo "{$verde}[2] Escanear FreeFire Max{$cln}\n";
+    echo "{$amarelo}[0] Instalar Módulos{$cln} {$branco}(Atualizar e instalar módulos)\n\n";
+    echo "{$verde}[1] Escanear FreeFire Normal{$cln}\n\n";
+    echo "{$verde}[2] Escanear FreeFire Max{$cln}\n\n";
     echo "{$vermelho}[3] Sair{$cln}\n\n";
 }
 
@@ -60,7 +60,7 @@ function menu() {
         case "3":
             exit;
         default:
-            echo "{$vermelho}[!] Opção inválida.{$cln}\n";
+            echo "\n{$vermelho}[!] Opção inválida.{$cln}\n\n";
             sleep(2);
             menu();
     }
@@ -70,9 +70,9 @@ function menu() {
 function atualizar() {
     global $azulclaro, $verde, $cln;
 
-    echo "{$azulclaro}[+] Atualizando repositório KellerSS...{$cln}\n";
+    echo "\n{$azulclaro}[+] Atualizando repositório KellerSS...{$cln}\n\n";
     system("git fetch origin && git reset --hard origin/master && git clean -f -d");
-    echo "{$verde}[-] Atualização completa!{$cln}\n";
+    echo "{$verde}[-] Atualização completa!{$cln}\n\n";
     exit;
 }
 
@@ -80,8 +80,10 @@ function atualizar() {
 function verificar_dispositivo($pacote) {
     global $azulclaro, $verde, $vermelho, $roxo, $cln;
 
+    echo "\n";
+
     if (!shell_exec("adb version > /dev/null 2>&1")) {
-        echo "{$vermelho}[!] ADB não instalado. Instalando...{$cln}\n";
+        echo "{$vermelho}[!] ADB não instalado. Instalando...{$cln}\n\n";
         system("pkg install -y android-tools > /dev/null 2>&1");
     }
 
@@ -90,22 +92,22 @@ function verificar_dispositivo($pacote) {
 
     $dispositivos = shell_exec("adb devices 2>&1");
     if (empty($dispositivos) || strpos($dispositivos, "device") === false || strpos($dispositivos, "no devices") !== false) {
-        echo "{$vermelho}[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.{$cln}\n";
+        echo "{$vermelho}[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.{$cln}\n\n";
         exit;
     }
 
     $verificaFF = shell_exec("adb shell pm list packages | grep $pacote 2>&1");
     if (!empty($verificaFF) && strpos($verificaFF, "more than one device/emulator") !== false) {
-        echo "{$vermelho}[!] Vários dispositivos. Use 'adb disconnect' e tente novamente.{$cln}\n";
+        echo "{$vermelho}[!] Vários dispositivos. Use 'adb disconnect' e tente novamente.{$cln}\n\n";
         exit;
     }
     if (empty($verificaFF) || strpos($verificaFF, $pacote) === false) {
-        echo "{$vermelho}[!] Jogo não encontrado no dispositivo.{$cln}\n";
+        echo "{$vermelho}[!] Jogo não encontrado no dispositivo.{$cln}\n\n";
         exit;
     }
 
     $versaoAndroid = trim(shell_exec("adb shell getprop ro.build.version.release"));
-    echo "{$azulclaro}[+] Versão do Android: {$versaoAndroid}{$cln}\n";
+    echo "{$azulclaro}[+] Versão do Android: {$versaoAndroid}{$cln}\n\n";
 
     $verificacoes = [
         "adb shell '[ -f /system/bin/su ] && echo found' 2>/dev/null",
@@ -130,20 +132,19 @@ function verificar_dispositivo($pacote) {
     }
 
     if ($rootDetectado) {
-        echo "{$vermelho}[+] Root detectado no dispositivo Android.{$cln}\n";
+        echo "{$vermelho}[+] Root detectado no dispositivo Android.{$cln}\n\n";
     } else {
-        echo "{$verde}[-] O dispositivo não tem root.{$cln}\n";
+        echo "{$verde}[-] O dispositivo não tem root.{$cln}\n\n";
     }
 
-    echo "{$roxo}[+] Checando se o dispositivo foi reiniciado recentemente...{$cln}\n";
+    echo "{$roxo}[+] Checando se o dispositivo foi reiniciado recentemente...{$cln}\n\n";
     $uptime = shell_exec("adb shell uptime");
     if (preg_match("/up (\d+) min/", $uptime, $match)) {
-        echo "{$vermelho}[!] Dispositivo foi iniciado há {$match[1]} minutos.{$cln}\n";
+        echo "{$vermelho}[!] Dispositivo foi iniciado há {$match[1]} minutos.{$cln}\n\n";
     } else {
-        echo "{$verde}[i] Dispositivo não reiniciado recentemente.{$cln}\n";
+        echo "{$verde}[i] Dispositivo não reiniciado recentemente.{$cln}\n\n";
     }
 
-    echo "\n";
     exit;
 }
 
