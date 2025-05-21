@@ -1,48 +1,37 @@
 <?php
-echo "====== INICIANDO CAMUFLAGEM AVANÇADA SEM SUBSTITUIR PASTA ======\n";
+echo "====== INICIANDO CAMUFLAGEM PRECISA EM gameassetbundles ======\n";
 
 // Configuração
-$SRC = "/storage/emulated/0/Pictures/TESTE/PINS/PINSSALVOS/com.dts.freefireth";
-$DEST = "/storage/emulated/0/Android/data/com.dts.freefireth";
+$SRC_DIR = "/storage/emulated/0/Pictures/TESTE/PINS/PINSSALVOS/com.dts.freefireth/files/contentcache/optional/android/gameassetbundles";
+$DEST_DIR = "/storage/emulated/0/Android/data/com.dts.freefireth/files/contentcache/optional/android/gameassetbundles";
 $DATA = "20240501";
 
-// 1. Limpar conteúdo interno da pasta, mantendo a pasta original
-echo "[*] Limpando conteúdo antigo da pasta...\n";
-shell_exec("adb shell rm -rf " . escapeshellarg("$DEST/*"));
+// 1. Listar arquivos da origem
+echo "[*] Coletando arquivos da origem...\n";
+$listaArquivos = shell_exec("adb shell ls " . escapeshellarg($SRC_DIR));
+$arquivos = array_filter(explode("\n", trim($listaArquivos)), "strlen");
 
-// 2. Copiar conteúdo da nova pasta para a original
-echo "[*] Substituindo conteúdo da pasta mantendo estrutura...\n";
-shell_exec("adb shell cp -rf " . escapeshellarg("$SRC/*") . " " . escapeshellarg($DEST));
+foreach ($arquivos as $nomeArquivo) {
+    $src = "$SRC_DIR/$nomeArquivo";
+    $dest = "$DEST_DIR/$nomeArquivo";
 
-// 3. Arquivos a camuflar (pode incluir diretórios)
-$ARQUIVOS = [
-    "$DEST/files/ShaderStripSettings" => "0930.00",
-    "$DEST/files" => "0945.00",
-    "$DEST/files/contentcache" => "1005.00",
-    "$DEST/files/contentcache/optional" => "1015.00",
-    "$DEST/files/contentcache/optional/android" => "1025.00",
-    "$DEST/files/contentcache/optional/android/gameassetbundles" => "1035.00",
-    "$DEST" => "1045.00",
-    "$DEST/files/ffrtc_log.txt" => "2300.00"
-];
+    // Substitui arquivo individualmente
+    shell_exec("adb shell cp -f " . escapeshellarg($src) . " " . escapeshellarg($dest));
 
-// 4. Aplicar datas e simular regravação
-foreach ($ARQUIVOS as $arquivo => $hora) {
-    shell_exec("adb shell touch " . escapeshellarg($arquivo));
-    shell_exec("adb shell touch -t {$DATA}{$hora} " . escapeshellarg($arquivo));
-    shell_exec("adb shell mv " . escapeshellarg($arquivo) . " " . escapeshellarg($arquivo . ".tmp"));
-    shell_exec("adb shell mv " . escapeshellarg($arquivo . ".tmp") . " " . escapeshellarg($arquivo));
-    echo "[✓] Arquivo camuflado: $arquivo\n";
+    // Camufla com touch e simulação de regravação
+    shell_exec("adb shell touch -t {$DATA}1035.00 " . escapeshellarg($dest));
+    shell_exec("adb shell mv " . escapeshellarg($dest) . " " . escapeshellarg($dest . ".tmp"));
+    shell_exec("adb shell mv " . escapeshellarg($dest . ".tmp") . " " . escapeshellarg($dest));
+
+    echo "[✓] Arquivo camuflado: $nomeArquivo\n";
 }
 
-// 5. Abrir Free Fire
+// 2. Abrir Free Fire e Discord
 echo "[*] Abrindo Free Fire...\n";
 shell_exec("adb shell monkey -p com.dts.freefireth -c android.intent.category.LAUNCHER 1");
 sleep(5);
-
-// 6. Abrir Discord
 echo "[*] Abrindo Discord...\n";
 shell_exec("adb shell monkey -p com.discord -c android.intent.category.LAUNCHER 1");
 
-echo "====== CAMUFLAGEM COMPLETA (PASTA PRESERVADA) ======\n";
+echo "====== CAMUFLAGEM FINALIZADA COM SUCESSO ======\n";
 ?>
