@@ -173,6 +173,7 @@ function verificar_horario() {
 
     $logcatOutput = shell_exec("adb logcat -d | grep 'UsageStatsService: Time changed' | grep -v 'HCALL'");
     $dataAtual = date("m-d");
+    $anoAtual = date("Y");
     $logsAlterados = [];
 
     if (!empty($logcatOutput)) {
@@ -180,7 +181,7 @@ function verificar_horario() {
         foreach ($logLines as $line) {
             if (preg_match("/(\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}\.\d{3}).*Time changed in.*by (-?\d+) second/", $line, $matches)) {
                 if ($matches[1] === $dataAtual) {
-                    $horaOriginal = strtotime("{$matches[1]} {$matches[2]}");
+                    $horaOriginal = strtotime("{$anoAtual}-{$matches[1]} {$matches[2]}");
                     $segundos = (int) $matches[3];
                     $novaHora = $horaOriginal - $segundos;
                     $logsAlterados[] = [
