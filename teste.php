@@ -14,24 +14,22 @@ $amarelo   = "\033[1;33m";
 function keller_banner() {
     global $cln, $azulclaro, $vermelho, $roxo, $verde, $amarelo, $branco;
 
-    echo $azulclaro . date("H:i") . "  🚗🚗🚗 •\n\n" . $cln;
-    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n\n";
+    echo $azulclaro . date("H:i") . "  🚗🚗🚗 •\n" . $cln;
+    echo "{$branco}KellerSS Android {$vermelho}Fucking Cheaters{$cln} {$azulclaro}discord.gg/allianceoficial{$cln}\n";
 
-    echo "{$vermelho}";
-    echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
+    echo "{$vermelho}🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
     echo "        K  E  L  L  E  R  S  S\n";
-    echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n";
-    echo $cln;
+    echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥{$cln}\n";
 
-    echo "\n{$azulclaro}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
+    echo "{$azulclaro}{C} Coded By - KellerSS | Credits for Sheik{$cln}\n\n";
 
     echo "{$azulclaro}+------------------------------+\n";
     echo "|         KellerSS Menu        |\n";
-    echo "+------------------------------+{$cln}\n\n";
+    echo "+------------------------------+{$cln}\n";
 
-    echo "{$amarelo}[0] Instalar Módulos{$cln} {$branco}(Atualizar e instalar módulos)\n\n";
-    echo "{$verde}[1] Escanear FreeFire Normal{$cln}\n\n";
-    echo "{$verde}[2] Escanear FreeFire Max{$cln}\n\n";
+    echo "{$amarelo}[0] Instalar Módulos{$cln} {$branco}(Atualizar e instalar módulos)\n";
+    echo "{$verde}[1] Escanear FreeFire Normal{$cln}\n";
+    echo "{$verde}[2] Escanear FreeFire Max{$cln}\n";
     echo "{$vermelho}[3] Sair{$cln}\n\n";
 }
 
@@ -60,7 +58,7 @@ function menu() {
         case "3":
             exit;
         default:
-            echo "\n{$vermelho}[!] Opção inválida.{$cln}\n\n";
+            echo "\n{$vermelho}[!] Opção inválida.{$cln}\n";
             sleep(2);
             menu();
     }
@@ -80,11 +78,9 @@ function atualizar() {
 function verificar_dispositivo($pacote) {
     global $azulclaro, $verde, $vermelho, $roxo, $cln;
 
-    echo "\n";
-
     // BLOCO 1: ADB
     if (!shell_exec("adb version > /dev/null 2>&1")) {
-        echo "{$vermelho}[i] ADB não instalado. Instalando...{$cln}\n\n";
+        echo "\n{$vermelho}[i] ADB não instalado. Instalando...{$cln}\n\n";
         system("pkg install -y android-tools > /dev/null 2>&1");
     }
 
@@ -93,23 +89,23 @@ function verificar_dispositivo($pacote) {
 
     $dispositivos = shell_exec("adb devices 2>&1");
     if (empty($dispositivos) || strpos($dispositivos, "device") === false || strpos($dispositivos, "no devices") !== false) {
-        echo "{$vermelho}[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.{$cln}\n\n";
+        echo "\n{$vermelho}[!] Nenhum dispositivo encontrado. Conecte via USB ou IP.{$cln}\n\n";
         exit;
     }
 
     $verificaFF = shell_exec("adb shell pm list packages | grep $pacote 2>&1");
     if (!empty($verificaFF) && strpos($verificaFF, "more than one device/emulator") !== false) {
-        echo "{$vermelho}[!] Vários dispositivos. Use 'adb disconnect' e tente novamente.{$cln}\n\n";
+        echo "\n{$vermelho}[!] Vários dispositivos. Use 'adb disconnect' e tente novamente.{$cln}\n\n";
         exit;
     }
     if (empty($verificaFF) || strpos($verificaFF, $pacote) === false) {
-        echo "{$vermelho}[!] Jogo não encontrado no dispositivo.{$cln}\n\n";
+        echo "\n{$vermelho}[!] Jogo não encontrado no dispositivo.{$cln}\n\n";
         exit;
     }
 
     // BLOCO 2: Versão + Root
     $versaoAndroid = trim(shell_exec("adb shell getprop ro.build.version.release"));
-    echo "{$azulclaro}[+] Versão do Android: {$versaoAndroid}{$cln}";
+    echo "\n{$azulclaro}[+] Versão do Android: {$versaoAndroid}{$cln}";
 
     $verificacoes = [
         "adb shell '[ -f /system/bin/su ] && echo found' 2>/dev/null",
@@ -134,13 +130,13 @@ function verificar_dispositivo($pacote) {
     }
 
     if ($rootDetectado) {
-        echo "\n{$vermelho}[+] Root detectado no dispositivo Android.{$cln}\n\n";
+        echo "\n{$vermelho}[+] Root detectado no dispositivo Android.{$cln}\n";
     } else {
-        echo "\n{$verde}[-] O dispositivo não tem root.{$cln}\n\n";
+        echo "\n{$verde}[-] O dispositivo não tem root.{$cln}\n";
     }
 
-    // BLOCO 3: Uptime (os dois juntos)
-    echo "{$roxo}[+] Checando se o dispositivo foi reiniciado recentemente...{$cln}\n";
+    // BLOCO 3: Uptime
+    echo "\n{$roxo}[+] Checando se o dispositivo foi reiniciado recentemente...{$cln}\n";
     $uptime = shell_exec("adb shell uptime");
     if (preg_match("/up (\d+) min/", $uptime, $match)) {
         echo "{$vermelho}[!] Dispositivo foi iniciado há {$match[1]} minutos.{$cln}\n\n";
@@ -151,5 +147,5 @@ function verificar_dispositivo($pacote) {
     exit;
 }
 
-// ========== INÍCIO ==========
+// ========== EXECUTAR ==========
 menu();
