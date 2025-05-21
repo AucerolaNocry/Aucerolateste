@@ -226,5 +226,119 @@ function verificar_horario() {
     echo "{$branco}[+] Caso haja acesso durante/após a partida, aplique o W.O!{$cln}\n\n";
 }
 
+function verificar_replay_e_clipboard() {
+    global $bold, $azulclaro, $amarelo, $branco, $vermelho, $fverde, $cln;
+
+    echo "\n{$azulclaro}[+] Obtendo os últimos textos copiados...{$cln}\n";
+
+    $comando = "adb logcat -d | grep 'hcallSetClipboardTextRpc' | sed -E 's/^([0-9]{2}-[0-9]{2}) ([0-9]{2}:[0-9]{2}:[0-9]{2}).*hcallSetClipboardTextRpc\([^)]*)\.*/\\1 \\2 \\3/' | tail -n 10";
+    $saida = shell_exec($comando);
+
+    if (!is_null($saida)) {
+        $linhas = explode("\n", trim($saida));
+        foreach ($linhas as $linha) {
+            if (!empty($linha) && preg_match("/^([0-9]{2}-[0-9]{2}) ([0-9]{2}:[0-9]{2}:[0-9]{2}) (.+)$/", $linha, $matches)) {
+                $data = $matches[1];
+                $hora = $matches[2];
+                $conteudo = $matches[3];
+                echo "{$amarelo}[!] {$data} {$hora} {$branco}{$conteudo}{$cln}\n";
+            }
+        }
+    }
+
+    echo "\n{$azulclaro}[+] Checando se o replay foi passado...{$cln}\n";
+
+    $comandoArquivos = "adb shell ls -t /sdcard/Android/data/com.dts.freefireth/files/MReplays/*.bin 2>/dev/null";
+    $output = shell_exec($comandoArquivos) ?? '';
+    $arquivos = array_filter(explode("\n", trim($output)));
+
+    $motivos = array();
+    $arquivoMaisRecente = null;
+    $ultimoModifyTime = null;
+    $ultimoChangeTime = null;
+
+    if (empty($arquivos)) {
+        $motivos[] = "Motivo 10 - Nenhum arquivo .bin encontrado na pasta MReplays";
+    }
+
+    foreach ($arquivos as $indice => $arquivo) {
+        $resultadoStat = shell_exec("adb shell stat " . escapeshellarg($arquivo));
+        
+        if (
+            preg_match("/Access: (.*?)\\n/", $resultadoStat, $matchAccess) &&
+            preg_match("/Modify: (.*?)\\n/", $resultadoStat, $matchModify) &&
+            preg_match("/Change: (.*?)\\n/", $resultadoStat, $matchChange)
+        ) {
+            $dataAccess = trim(preg_replace("/ -\\d{4}$/", '', $matchAccess[1]));
+            $dataModify = trim(preg_replace("/ -\\d{4}$/", '', $matchModify[1]));
+            $dataChange = trim(preg_replace("/ -\\d{4}$/", '', $matchChange[1]));
+
+            $accessTime = strtotime($dataAccess);
+            $modifyTime = strtotime($dataModify);
+            $changeTime = strtotime($dataChange);
+
+            if ($indice === 0) {
+                $ultimoModifyTime = $modifyTime;
+                $ultimoChangeTime = $changeTime;
+            }
+
+            if ($accessTime > $modifyTime) {
+                $motivos[] = "Motivo 1 - " . basename($arquivo);
+            }
+
+            if (
+                preg_match("/\\.0+$/", $dataAccess) ||
+                preg_match("/\\.0+$/", $dataModify) ||
+                preg_match("/\\.0+$/", $dataChange)
+            ) {
+                $motivos[] = "Motivo 2 - " . basename($arquivo);
+            }
+
+            if ($dataModify !== $dataChange) {
+                $motivos[] = "Motivo 3 - " . basename($arquivo);
+            }
+
+            if ($indice === 0) {
+                $arquivoMaisRecente = $arquivo;
+
+                if (preg_match("/(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})/", basename($arquivo), $match)) {
+                    $nomeNormalizado = preg_replace(
+                        "/^(\\d{4})-(\\d{2})-(\\d{2})-(\\d{2})-(\\d{2})-(\\d{2})$/",
+                        "$1-$2-$3 $4:$5:$6",
+                        $match[1]
+                    );
+
+                    $nomeTimestamp = strtotime($nomeNormalizado);
+                    $dataModifyLimpo = preg_replace("/\\.\\d+$/", '', $dataModify);
+                    $modifyTimestamp = strtotime($dataModifyLimpo);
+
+                    if ($nomeTimestamp !== false && $modifyTimestamp !== false) {
+                        $nomeFormatado = date("Y-m-d H:i:s", $nomeTimestamp);
+                        $modifyFormatado = date("Y-m-d H:i:s", $modifyTimestamp);
+
+                        if ($nomeFormatado !== $modifyFormatado) {
+                            $motivos[] = "Motivo 4 - " . basename($arquivo);
+                        }
+                    } else {
+                        $motivos[] = "Motivo 4 - erro ao converter timestamps (Modify: {$dataModifyLimpo}, Nome: {$match[1]})";
+                    }
+                }
+            }
+
+            $jsonPath = preg_replace("/\\.bin$/", ".json", $arquivo);
+            $jsonStat = shell_exec("adb shell stat " . escapeshellarg($jsonPath) . " 2>/dev/null");
+
+            if ($jsonStat && preg_match("/Access: (.*?)\\n/", $jsonStat, $matchJsonAccess)) {
+                $jsonAccess = trim(preg_replace("/ -\\d{4}$/", '', $matchJsonAccess[1]));
+                $dataBinTimes = array($dataAccess, $dataModify, $dataChange);
+
+                if (!in_array($jsonAccess, $dataBinTimes)) {
+                    $motivos[] = "Motivo 8 - " . basename($jsonPath);
+                }
+            }
+        }
+    }
+
+    // Parte 2 continua...
 // ========== INICIAR ==========
 menu();
